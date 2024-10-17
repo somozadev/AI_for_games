@@ -7,8 +7,8 @@ namespace MeshCreator
     public class Monster : MonoBehaviour
     {
         [SerializeField] private BoneSettings _boneSettings;
-        [SerializeField] private MinMax minMaxBones;
-        [SerializeField] private MinMax minMaxBoneBlendShapeWeights;
+        [SerializeField] private MinMax<int> minMaxBones;
+        [SerializeField] private MinMax<int> minMaxBoneBlendShapeDisplacementMultiplier;
         private List<Bone> _bones;
         private List<Transform> _bonesTransforms;
 
@@ -25,7 +25,6 @@ namespace MeshCreator
 
         private void Init()
         {
-            _root = transform.GetChild(0);
             _skinnedMeshRenderer = _model.GetComponent<SkinnedMeshRenderer>();
             // SkinnedMeshRenderer.material = BodyMat = new Material(bodyMaterial);
             _mesh = new Mesh();
@@ -261,8 +260,8 @@ namespace MeshCreator
                                                heightAboveBone;
                 }
 
-                _mesh.AddBlendShapeFrame("Bone." + boneIndex, 0, deltaZeroArray, deltaZeroArray, deltaZeroArray);
-                _mesh.AddBlendShapeFrame("Bone." + boneIndex, 100, deltaVertices, deltaZeroArray, deltaZeroArray);
+                _mesh.AddBlendShapeFrame("Bone." + boneIndex, 0 * minMaxBoneBlendShapeDisplacementMultiplier.min, deltaZeroArray, deltaZeroArray, deltaZeroArray);
+                _mesh.AddBlendShapeFrame("Bone." + boneIndex, 100* minMaxBoneBlendShapeDisplacementMultiplier.max, deltaVertices, deltaZeroArray, deltaZeroArray);
 
                 // OnSetupBone?.Invoke(boneIndex);
             }
@@ -324,7 +323,7 @@ namespace MeshCreator
                 position = transform.InverseTransformPoint(position);
                 rotation = Quaternion.Inverse(transform.rotation) * rotation;
 
-                AddBone(0, position, rotation, Mathf.Clamp(GetBlendShapeWeight(0) * 0.75f, minMaxBoneBlendShapeWeights.min, minMaxBoneBlendShapeWeights.max));
+                AddBone(0, position, rotation, Mathf.Clamp(GetBlendShapeWeight(0) * 0.75f, 0f, 1f));
             }
             else
                 AddBone(0, _body.position, _body.rotation, 1);
@@ -343,7 +342,7 @@ namespace MeshCreator
                 rotation = Quaternion.Inverse(transform.rotation) * rotation;
 
                 AddBone(_bonesTransforms.Count, position, rotation,
-                    Mathf.Clamp(GetBlendShapeWeight(_bonesTransforms.Count - 1) * 0.75f,minMaxBoneBlendShapeWeights.min, minMaxBoneBlendShapeWeights.max));
+                    Mathf.Clamp(GetBlendShapeWeight(_bonesTransforms.Count - 1) * 0.75f,0f, 1f));
             }
             else
                 AddBone(0, _body.position, _body.rotation, 1);

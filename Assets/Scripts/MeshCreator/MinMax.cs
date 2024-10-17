@@ -1,15 +1,16 @@
 ﻿namespace MeshCreator
 {
     [System.Serializable]
-    public struct MinMax
+    public struct MinMax<T> where T : System.IComparable<T>
     {
-        public float min;
-        public float max;
+        public T min;
+        public T max;
 
-        public MinMax(float min, float max)
+        public MinMax(T min, T max)
         {
             this.min = min;
             this.max = max;
         }
     }
+   
 }

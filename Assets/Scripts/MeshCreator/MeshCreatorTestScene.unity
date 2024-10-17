@@ -837,7 +837,7 @@ SkinnedMeshRenderer:
   m_Mesh: {fileID: 0}
   m_Bones: []
   m_BlendShapeWeights: []
-  m_RootBone: {fileID: 0}
+  m_RootBone: {fileID: 2011511458}
   m_AABB:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
@@ -1024,7 +1024,7 @@ MonoBehaviour:
     max: 100
   minMaxBoneBlendShapeWeights:
     min: 0
-    max: 0
+    max: 1200
   _mesh: {fileID: 0}
   _root: {fileID: 2011511458}
   _body: {fileID: 975256574}
