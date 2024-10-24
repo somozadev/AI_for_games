@@ -3,12 +3,12 @@ using UnityEngine;
 
 namespace MeshCreator.Editor
 {
-    [CustomEditor(typeof(Monster))]
+    [CustomEditor(typeof(MonsterBody))]
     public class MonsterEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
-            Monster monsterComponent = (Monster)target;
+            MonsterBody monsterComponent = (MonsterBody)target;
             DrawDefaultInspector();
             if (GUILayout.Button("Add Bone Front"))
             {

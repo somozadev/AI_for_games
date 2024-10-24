@@ -465,6 +465,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 975256574}
+  - component: {fileID: 975256575}
   m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
@@ -489,6 +490,36 @@ Transform:
   m_Father: {fileID: 1563677410}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &975256575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 975256573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1f5caa52b8e47b98fd568bd7e693d61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _boneSettings:
+    radius: 0.29
+    length: 0.28
+    segments: 14
+    rings: 10
+  minMaxBones:
+    min: 5
+    max: 100
+  _mesh: {fileID: 0}
+  weightCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _root: {fileID: 2011511458}
+  _body: {fileID: 975256574}
+  _model: {fileID: 1307676954}
 --- !u!1 &1039369669
 GameObject:
   m_ObjectHideFlags: 0
@@ -1011,24 +1042,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1563677408}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b1f5caa52b8e47b98fd568bd7e693d61, type: 3}
+  m_Script: {fileID: 11500000, guid: a88327119ceb4f0db60d4d0fc167f1fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _boneSettings:
-    radius: 0.29
-    length: 0.28
-    segments: 14
-    rings: 10
-  minMaxBones:
-    min: 5
-    max: 100
-  minMaxBoneBlendShapeWeights:
-    min: 0
-    max: 1200
-  _mesh: {fileID: 0}
-  _root: {fileID: 2011511458}
-  _body: {fileID: 975256574}
-  _model: {fileID: 1307676954}
 --- !u!1 &1638348511
 GameObject:
   m_ObjectHideFlags: 0
