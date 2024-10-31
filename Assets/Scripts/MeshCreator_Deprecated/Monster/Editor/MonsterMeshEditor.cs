@@ -1,23 +1,23 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace MeshCreator.Editor
+namespace MonsterCreator
 {
-    [CustomEditor(typeof(MonsterBody))]
-    public class MonsterEditor : UnityEditor.Editor
+    [CustomEditor(typeof(MonsterMesh))]
+    public class MonsterMeshEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
-            MonsterBody monsterComponent = (MonsterBody)target;
+            MonsterMesh monsterMesh = (MonsterMesh)target;
             DrawDefaultInspector();
             if (GUILayout.Button("Add Bone Front"))
             {
-                monsterComponent.AddBoneToFront();
+                monsterMesh.AddBoneToFront();
             }
 
             if (GUILayout.Button("Add Bone Back"))
             {
-                monsterComponent.AddBoneToBack();
+                monsterMesh.AddBoneToBack();
             }
         }
     }

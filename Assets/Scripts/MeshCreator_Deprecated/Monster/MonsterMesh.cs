@@ -5,23 +5,45 @@ using UnityEngine;
 
 namespace MonsterCreator
 {
+    [System.Serializable]
     public class MonsterMesh : MonoBehaviour
     {
         [SerializeField] private MonsterMeshSettings monsterMeshSettings;
         [SerializeField] private List<MonsterMeshBone> bones;
+        public List<MonsterMeshBone> Bones => bones;
 
-        
         [SerializeField] private Transform root;
         [SerializeField] private Transform body;
         [SerializeField] private Transform model;
         [SerializeField] private AnimationCurve weightCurve;
 
+        public AnimationCurve AnimationCurve
+        {
+            get { return weightCurve; }
+            set
+            {
+                weightCurve = value;
+                UpdateBlendShapesFromCurve();
+            }
+        }
+
+
         private SkinnedMeshRenderer _skinnedMeshRenderer;
+        public SkinnedMeshRenderer MeshRenderer => _skinnedMeshRenderer;
+
         private Mesh _mesh;
 
         private void Awake()
         {
             Initialize();
+        }
+
+        private void OnValidate()
+        {
+            if (_skinnedMeshRenderer != null && bones.Count > 0)
+            {
+                UpdateBlendShapesFromCurve();
+            }
         }
 
         private void Initialize()
@@ -30,16 +52,32 @@ namespace MonsterCreator
             _mesh = new Mesh();
             _skinnedMeshRenderer.sharedMesh = _mesh;
             _mesh.name = "base";
+            if (TryLoadFirst())
+                return;
             bones = new List<MonsterMeshBone>();
             weightCurve ??= AnimationCurve.Linear(0, 1, 1, 0);
+        }
+
+        private bool TryLoadFirst()
+        {
+            foreach (var bone in model.GetComponentsInChildren<MonsterMeshBone>())
+            {
+                bones.Add(bone);
+            }
+
+            if (bones.Count > 0)
+            {
+                Construct();
+                UpdateBlendShapesFromCurve();
+                return true;
+            }
+
+            return false;
         }
 
         private void Construct()
         {
             ClearMesh();
-            List<Vector3> vertices = new List<Vector3>(); 
-            List<BoneWeight> weights = new List<BoneWeight>(); 
-            
         }
 
         private void ClearMesh()
@@ -49,12 +87,13 @@ namespace MonsterCreator
             //vertices
             List<Vector3> vertices = new List<Vector3>();
             List<BoneWeight> weights = new List<BoneWeight>();
-            GenerateRingMesh(ref vertices,ref weights, true);
+            GenerateRingMesh(ref vertices, ref weights, true);
             GenerateMiddleMesh(ref vertices, ref weights);
-            GenerateRingMesh(ref vertices,ref weights, false);
-            
+            GenerateRingMesh(ref vertices, ref weights, false);
+
             _mesh.SetVertices(vertices);
             _mesh.boneWeights = weights.ToArray();
+
             #region Triangles
 
             List<int> triangles = new List<int>();
@@ -96,6 +135,7 @@ namespace MonsterCreator
             _mesh.SetTriangles(triangles, 0);
 
             #endregion
+
             #region UVs
 
             List<Vector2> uv = new List<Vector2>();
@@ -115,6 +155,7 @@ namespace MonsterCreator
             _mesh.uv = _mesh.uv8;
 
             #endregion
+
             #region Normals
 
             Vector3[] normals = new Vector3[vertices.Count];
@@ -130,8 +171,8 @@ namespace MonsterCreator
 
             _mesh.SetNormals(normals);
 
-            #endregion            //bpmes tpdp
-            
+            #endregion //bpmes tpdp
+
             #region Bones
 
             Matrix4x4[] bindPoses = new Matrix4x4[bones.Count];
@@ -143,8 +184,8 @@ namespace MonsterCreator
             {
                 // Bind Pose
                 bones[boneIndex].position = Vector3.forward *
-                                                  (monsterMeshSettings.Radius +
-                                                   monsterMeshSettings.Length * (0.5f + boneIndex));
+                                            (monsterMeshSettings.Radius +
+                                             monsterMeshSettings.Length * (0.5f + boneIndex));
                 bones[boneIndex].rotation = Quaternion.identity;
                 bindPoses[boneIndex] = bones[boneIndex].transform.worldToLocalMatrix * body.localToWorldMatrix;
 
@@ -173,27 +214,26 @@ namespace MonsterCreator
                 // OnSetupBone?.Invoke(boneIndex);
             }
 
-            _mesh.bindposes = bindPoses;
-            Transform[] bonestrf = bones.Select(bone => bone.transform).ToArray();
-            List<float> boneWeights = (List<float>)bones.Select(bone => bone.weight);
-            _skinnedMeshRenderer.bones = bonestrf;
+            if (bones.Count > 0)
+            {
+                Transform[] bonestrf = bones.Select(bone => bone.transform).ToArray();
+                _skinnedMeshRenderer.bones = bonestrf;
+                _mesh.bindposes = bindPoses;
+            }
 
             #endregion
 
             for (int boneIndex = 0; boneIndex < bones.Count; boneIndex++)
-            {
-                bones[boneIndex].position = transform.TransformPoint(bones[boneIndex].position);
-                bones[boneIndex].rotation = transform.rotation * bones[boneIndex].rotation;
                 SetBlendShapeWeight(boneIndex, bones[boneIndex].weight);
-            }
 
-            ApplyBoneWeights(vertices, boneWeights);
-            
+
+            ApplyBoneWeights(vertices, weights);
+            UpdateBlendShapesFromCurve();
         }
 
-        private void GenerateRingMesh(ref List<Vector3> vertices ,ref  List<BoneWeight> weights, bool topHemisphere)
+        private void GenerateRingMesh(ref List<Vector3> vertices, ref List<BoneWeight> weights, bool topHemisphere)
         {
-            if(topHemisphere)
+            if (topHemisphere)
             {
                 for (var ringIndex = 0; ringIndex < monsterMeshSettings.Segments / 2; ringIndex++)
                 {
@@ -227,14 +267,15 @@ namespace MonsterCreator
                         var y = ringRadius * Mathf.Sin(angle * Mathf.Deg2Rad);
                         var z = ringDistance;
 
-                        vertices.Add(new Vector3(x, y, monsterMeshSettings.Radius + (monsterMeshSettings.Length * bones.Count) + z));
+                        vertices.Add(new Vector3(x, y,
+                            monsterMeshSettings.Radius + (monsterMeshSettings.Length * bones.Count) + z));
                         weights.Add(new BoneWeight() { boneIndex0 = bones.Count - 1, weight0 = 1 });
                     }
                 }
             }
         }
 
-        private void GenerateMiddleMesh(ref List<Vector3> vertices ,ref  List<BoneWeight> weights)
+        private void GenerateMiddleMesh(ref List<Vector3> vertices, ref List<BoneWeight> weights)
         {
             for (var ringIndex = 0; ringIndex < monsterMeshSettings.Rings * bones.Count; ringIndex++)
             {
@@ -269,43 +310,59 @@ namespace MonsterCreator
                 }
             }
         }
+
         private void AddBone(Vector3 pos, Quaternion quat, float weight, bool front)
         {
             var go = new GameObject("Bone." + bones.Count);
             go.AddComponent<MonsterMeshBone>();
             go.transform.SetParent(root);
-            if(front)
+
+            if (front)
                 bones.Add(go.GetComponent<MonsterMeshBone>());
             else
-                bones.Insert( 0,go.GetComponent<MonsterMeshBone>());
-            Construct(); //regenerateMesh. maybe better calling reconstruct body here
+                bones.Insert(0, go.GetComponent<MonsterMeshBone>());
+
+            Construct();
         }
-        
+
         public void AddBoneToFront()
         {
-            if(bones.Count <0 )return;
-            var pos = bones[0].transform.position - bones[0].transform.forward * monsterMeshSettings.Length;
-            var rot = bones[0].transform.rotation;
-
-            pos = transform.InverseTransformPoint(pos);
-            rot = Quaternion.Inverse(transform.rotation) * rot;
-            AddBone(pos, rot, GetBlendShapeWeight(0), true);
+            if (bones.Count <= 0)
+            {
+                AddBone(body.position, body.rotation, 1, true);
+            }
+            else
+            {
+                var pos = bones[0].transform.position - bones[0].transform.forward * monsterMeshSettings.Length;
+                var rot = bones[0].transform.rotation;
+                pos = transform.InverseTransformPoint(pos);
+                rot = Quaternion.Inverse(transform.rotation) * rot;
+                AddBone(pos, rot, GetBlendShapeWeight(0), true);
+            }
         }
+
         public void AddBoneToBack()
         {
-            if(bones.Count <0 )return;
-            var index = bones.Count - 1;
-            var pos = bones[index].transform.position - bones[index].transform.forward * monsterMeshSettings.Length;
-            var rot = bones[index].transform.rotation;
-
-            pos = transform.InverseTransformPoint(pos);
-            rot = Quaternion.Inverse(transform.rotation) * rot;
-            AddBone(pos, rot, GetBlendShapeWeight(index) * 0.75f, true);
+            if (bones.Count <= 0)
+            {
+                AddBone(body.position, body.rotation, 1, false);
+            }
+            else
+            {
+                var index = bones.Count - 1;
+                var pos = bones[index].transform.position - bones[index].transform.forward * monsterMeshSettings.Length;
+                var rot = bones[index].transform.rotation;
+                pos = transform.InverseTransformPoint(pos);
+                rot = Quaternion.Inverse(transform.rotation) * rot;
+                AddBone(pos, rot, GetBlendShapeWeight(index) * 0.75f, false);
+            }
         }
+
         private float GetBlendShapeWeight(int index)
         {
             return _skinnedMeshRenderer.GetBlendShapeWeight(index);
         }
+
         private void SetBlendShapeWeight(int index, float weight)
         {
             weight = Mathf.Clamp(weight, 0f, 100f);
@@ -314,19 +371,32 @@ namespace MonsterCreator
 
             // UpdateOrigin();
         }
+
+        private void UpdateBlendShapesFromCurve()
+        {
+            if (bones.Count <= 0) return;
+            for (int boneIndex = 0; boneIndex < bones.Count; boneIndex++)
+            {
+                float bonePosition = boneIndex / (float)(bones.Count - 1);
+
+                float weightFromCurve = weightCurve.Evaluate(bonePosition) * 100f; // Convertir a porcentaje
+
+                SetBlendShapeWeight(boneIndex, weightFromCurve);
+            }
+
+            Debug.Log("updating blend shapes");
+        }
+
         private void ApplyBoneWeights(List<Vector3> vertices, List<BoneWeight> boneWeights)
         {
             for (int i = 0; i < boneWeights.Count; i++)
             {
                 var boneWeight = boneWeights[i];
                 var distanceAlongBone = vertices[i].z / (monsterMeshSettings.Length * bones.Count);
-
                 float weightModifier = weightCurve.Evaluate(distanceAlongBone);
-
                 boneWeight.weight0 *= weightModifier;
                 boneWeight.weight1 *= weightModifier;
                 boneWeight.weight2 *= weightModifier;
-
                 boneWeights[i] = boneWeight;
             }
         }
