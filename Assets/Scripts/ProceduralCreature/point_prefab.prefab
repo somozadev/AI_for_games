@@ -14,11 +14,11 @@ GameObject:
   - component: {fileID: 8683977484600656258}
   m_Layer: 0
   m_Name: Sphere
-  m_TagString: Untagged
+  m_TagString: Sphere
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &915067742673921963
 Transform:
   m_ObjectHideFlags: 0
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9ea704d9708de4642a770b124b9a4b66, type: 2}
+  - {fileID: 2100000, guid: 6ee5bfab67661d242b0f4f46762d1a21, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -153,5 +153,10 @@ MonoBehaviour:
   size: 1
   parent_point: {fileID: 0}
   children_point: {fileID: 0}
-  leftPosition: {x: 0, y: 0, z: 0}
-  rightPosition: {x: 0, y: 0, z: 0}
+  desired_distance: 1
+  repositionSpeed: 5
+  angleTheshold: 200
+  hasLegs: 0
+  limbPrefab: {fileID: 3197072781907277733, guid: 9ee5ba7a2cedb584a85a74a3eb2bb8e0, type: 3}
+  left_leg_parent: {fileID: 0}
+  right_leg_parent: {fileID: 0}
