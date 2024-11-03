@@ -8,19 +8,19 @@ namespace ProceduralCreature
 {
     public class Body : MonoBehaviour
     {
-        public List<Point> points;
-        public int nOfPoints =16;
+        public CreatureConfiguration configuration;
+
+        public List<BodyPoint> points;
+        public int nOfPoints = 16;
         [SerializeField] GameObject pointPrefab;
         public MeshFilter _meshFilter;
 
         public MeshRenderer _meshRenderer;
 
-        // public int verticesPerRing = 32;
         public int segments = 32;
 
         public bool generateMesh = false;
 
-        //SDF rendering vs mesh 
         public Material sdfMaterial;
         public float smoothness = 8.0f;
 
@@ -34,27 +34,38 @@ namespace ProceduralCreature
                 _meshRenderer.material = sdfMaterial;
             }
 
-            points = new List<Point>();
+            points = new List<BodyPoint>();
             Init();
-            if (generateMesh)
-                MeshGenerator.UpdateMesh(points, segments, _meshFilter, sdfMaterial);
+        }
+
+        private void Start()
+        {
         }
 
         private void Init()
         {
+            float[] sizes = new float[] { };
+
+            if (configuration)
+            {
+                nOfPoints = configuration.bodyLenght;
+                sizes = configuration.bodySizes;
+            }
+
+
             for (int i = 0; i < nOfPoints; i++)
             {
                 var p = Instantiate(pointPrefab, transform);
                 p.name = "point_" + i;
-                p.transform.position = new Vector3(p.transform.position.x + i * 4, p.transform.position.y,
-                    p.transform.position.z);
-                p.GetComponent<Point>().ScaleBy(Random.Range(1.0f, 1.0f));
-                points.Add(p.GetComponent<Point>());
-                p.GetComponent<Point>().SetIndex(i + 1);
-                if (i % 2 == 0)
-                    p.GetComponent<Point>().Init(true);
-                p.GetComponent<Point>().Init(false);
+                p.transform.position = new Vector3(p.transform.position.x, p.transform.position.y,
+                    p.transform.position.z - i * 4);
+                var bp = p.GetComponent<BodyPoint>();
+                bp.ScaleBy(sizes.Length > 0 ? sizes[i] : Random.Range(1.0f, 1.0f));
+                bp.SetIndex(i + 1);
+                points.Add(bp);
             }
+
+            points[0].gameObject.AddComponent<CreaturePlayerController>();
 
             for (int i = 0; i < points.Count; i++)
             {
@@ -63,6 +74,17 @@ namespace ProceduralCreature
                 if (i < points.Count - 1)
                     points[i].children_point = points[i + 1];
             }
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                if (configuration)
+                    points[i].Init(configuration ? i % configuration.legsInBodyN == 0 : i % 2 == 0);
+                else points[i].Init(i % 2 == 0);
+            }
+            
+            
+            if (generateMesh)
+                _meshFilter.mesh = MeshGenerator.GenerateTriangularMesh(points);
         }
 
         private void Update()
@@ -73,14 +95,13 @@ namespace ProceduralCreature
             }
 
             if (generateMesh)
-                MeshGenerator.UpdateMesh(points, segments, _meshFilter, sdfMaterial);
-            // GenerateMesh();
+                _meshFilter.mesh = MeshGenerator.GenerateTriangularMesh(points);
         }
 
 
         private void OnDrawGizmos()
         {
-            Point lastPoint=null;
+            Point lastPoint = null;
             foreach (var point in points)
             {
                 if (point != null)
@@ -91,6 +112,7 @@ namespace ProceduralCreature
                     if (lastPoint != null)
                         Gizmos.DrawLine(point.transform.position, lastPoint.transform.position);
                 }
+
                 lastPoint = point;
             }
         }

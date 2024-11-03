@@ -5,7 +5,8 @@ namespace ProceduralCreature
 {
     public static class MeshGenerator
     {
-        private static void CreateSphereMesh(Vector3 position, float radius, List<Vector3> vertices, List<int> triangles, int sphereSegments)
+        private static void CreateSphereMesh(Vector3 position, float radius, List<Vector3> vertices,
+            List<int> triangles, int sphereSegments)
         {
             int currentIndex = vertices.Count;
 
@@ -46,8 +47,8 @@ namespace ProceduralCreature
                 }
             }
         }
-        
-        public static void UpdateMesh(List<Point> points, int sphereSegments, MeshFilter meshFilter, Material sdfMaterial)
+
+        public static void UpdateMesh(List<BodyPoint> points, int sphereSegments, MeshFilter meshFilter)
         {
             if (points.Count == 0) return;
 
@@ -78,11 +79,216 @@ namespace ProceduralCreature
             for (int i = 0; i < points.Count; i++)
             {
                 positions[i] = (Vector4)points[i].transform.position;
-                positions[i].w = points[i].size;  // Store radius in the w component
+                positions[i].w = points[i].size; // Store radius in the w component
+            }
+        }
+
+        public static Mesh GenerateTriangularMesh(List<BodyPoint> bodyPoints)
+        {
+            Mesh mesh = new Mesh();
+            if (bodyPoints.Count < 2) return mesh;
+            List<Vector3> vertices = new List<Vector3>();
+            List<int> triangles = new List<int>();
+
+            for (int i = 0; i < bodyPoints.Count; i++)
+            {
+                BodyPoint bodyPoint = bodyPoints[i];
+                Vector3 center = bodyPoint.transform.localPosition;
+                float radius = bodyPoint.size / 2;
+                var trf = bodyPoint.transform;
+
+                Vector3 top = center + (trf.up * radius);
+                Vector3 bottomLeft = (center - (trf.up * radius)) - (trf.right * radius);
+                Vector3 bottomRight = (center - (trf.up * radius)) + (trf.right * radius);
+
+                vertices.Add(top);
+                vertices.Add(bottomLeft);
+                vertices.Add(bottomRight);
             }
 
-            sdfMaterial.SetVectorArray("_positions", positions);
-            sdfMaterial.SetInt("_pointCount", points.Count);
+            for (int i = 0; i < bodyPoints.Count - 1; i++)
+            {
+                int currentTop = i * 3;
+                int currentBottomLeft = i * 3 + 1;
+                int currentBottomRight = i * 3 + 2;
+
+                int nextTop = (i + 1) * 3;
+                int nextBottomLeft = (i + 1) * 3 + 1;
+                int nextBottomRight = (i + 1) * 3 + 2;
+                if (i == 0)
+                {
+                    triangles.Add(currentBottomLeft);
+                    triangles.Add(currentBottomRight);
+                    triangles.Add(currentTop);
+                    
+                    
+                    triangles.Add(currentTop);
+                    triangles.Add(currentBottomRight);
+                    triangles.Add(nextTop);
+
+                    triangles.Add(currentBottomRight);
+                    triangles.Add(nextBottomLeft);
+                    triangles.Add(nextTop);
+
+                    triangles.Add(nextTop);
+                    triangles.Add(currentBottomLeft);
+                    triangles.Add(currentTop);
+
+                    triangles.Add(nextTop);
+                    triangles.Add(nextBottomRight);
+                    triangles.Add(currentBottomLeft);
+                    
+                    triangles.Add(nextBottomLeft);
+                    triangles.Add(currentBottomLeft);
+                    triangles.Add(nextBottomRight);
+                   
+                    triangles.Add(nextBottomLeft);
+                    triangles.Add(currentBottomRight);
+                    triangles.Add(currentBottomLeft);
+                }
+                else
+                {
+                    triangles.Add(currentTop);
+                    triangles.Add(nextTop);
+                    triangles.Add(currentBottomRight);
+
+                    triangles.Add(nextTop);
+                    triangles.Add(nextBottomRight);
+                    triangles.Add(currentBottomRight);
+
+                    triangles.Add(nextTop);
+                    triangles.Add(currentTop);
+                    triangles.Add(currentBottomLeft);
+
+                    triangles.Add(nextTop);
+                    triangles.Add(currentBottomLeft);
+                    triangles.Add(nextBottomLeft);
+                    
+                    triangles.Add(currentBottomLeft);
+                    triangles.Add(currentBottomRight);
+                    triangles.Add(nextBottomLeft);
+
+                    triangles.Add(currentBottomRight);
+                    triangles.Add(nextBottomRight);
+                    triangles.Add(nextBottomLeft);
+                }
+                if (i == bodyPoints.Count - 1)
+                {
+                    triangles.Add(currentTop);
+                    triangles.Add(currentBottomRight);
+                    triangles.Add(currentBottomLeft);
+                }
+
+            }
+
+            mesh.SetVertices(vertices);
+            mesh.SetTriangles(triangles, 0);
+            mesh.RecalculateNormals();
+
+            return mesh;
+        } public static Mesh GenerateTriangularMesh(List<Point> bodyPoints)
+        {
+            Mesh mesh = new Mesh();
+            if (bodyPoints.Count < 2) return mesh;
+            List<Vector3> vertices = new List<Vector3>();
+            List<int> triangles = new List<int>();
+
+            for (int i = 0; i < bodyPoints.Count; i++)
+            {
+                Point bodyPoint = bodyPoints[i];
+                Vector3 center = bodyPoint.transform.localPosition;
+                float radius = bodyPoint.size / 2;
+                var trf = bodyPoint.transform;
+
+                Vector3 top = center + (trf.up * radius);
+                Vector3 bottomLeft = (center - (trf.up * radius)) - (trf.right * radius);
+                Vector3 bottomRight = (center - (trf.up * radius)) + (trf.right * radius);
+
+                vertices.Add(top);
+                vertices.Add(bottomLeft);
+                vertices.Add(bottomRight);
+            }
+
+            for (int i = 0; i < bodyPoints.Count - 1; i++)
+            {
+                int currentTop = i * 3;
+                int currentBottomLeft = i * 3 + 1;
+                int currentBottomRight = i * 3 + 2;
+
+                int nextTop = (i + 1) * 3;
+                int nextBottomLeft = (i + 1) * 3 + 1;
+                int nextBottomRight = (i + 1) * 3 + 2;
+                if (i == 0)
+                {
+                    triangles.Add(currentBottomLeft);
+                    triangles.Add(currentBottomRight);
+                    triangles.Add(currentTop);
+                    
+                    
+                    triangles.Add(currentTop);
+                    triangles.Add(currentBottomRight);
+                    triangles.Add(nextTop);
+
+                    triangles.Add(currentBottomRight);
+                    triangles.Add(nextBottomLeft);
+                    triangles.Add(nextTop);
+
+                    triangles.Add(nextTop);
+                    triangles.Add(currentBottomLeft);
+                    triangles.Add(currentTop);
+
+                    triangles.Add(nextTop);
+                    triangles.Add(nextBottomRight);
+                    triangles.Add(currentBottomLeft);
+                    
+                    triangles.Add(nextBottomLeft);
+                    triangles.Add(currentBottomLeft);
+                    triangles.Add(nextBottomRight);
+                   
+                    triangles.Add(nextBottomLeft);
+                    triangles.Add(currentBottomRight);
+                    triangles.Add(currentBottomLeft);
+                }
+                else
+                {
+                    triangles.Add(currentTop);
+                    triangles.Add(nextTop);
+                    triangles.Add(currentBottomRight);
+
+                    triangles.Add(nextTop);
+                    triangles.Add(nextBottomRight);
+                    triangles.Add(currentBottomRight);
+
+                    triangles.Add(nextTop);
+                    triangles.Add(currentTop);
+                    triangles.Add(currentBottomLeft);
+
+                    triangles.Add(nextTop);
+                    triangles.Add(currentBottomLeft);
+                    triangles.Add(nextBottomLeft);
+                    
+                    triangles.Add(currentBottomLeft);
+                    triangles.Add(currentBottomRight);
+                    triangles.Add(nextBottomLeft);
+
+                    triangles.Add(currentBottomRight);
+                    triangles.Add(nextBottomRight);
+                    triangles.Add(nextBottomLeft);
+                }
+                if (i == bodyPoints.Count - 2)
+                {
+                    triangles.Add(nextBottomLeft);
+                    triangles.Add(nextBottomRight);
+                    triangles.Add(nextTop);
+                }
+
+            }
+
+            mesh.SetVertices(vertices);
+            mesh.SetTriangles(triangles, 0);
+            mesh.RecalculateNormals();
+
+            return mesh;
         }
     }
 }

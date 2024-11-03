@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 4562806447788980262}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 803465473315520969}
   m_RootOrder: -1
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6ee5bfab67661d242b0f4f46762d1a21, type: 2}
+  - {fileID: 2100000, guid: d24b800f578791348a283c69285797f8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -114,9 +114,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 803465473315520969}
-  - component: {fileID: 1236002192794702034}
+  - component: {fileID: 5833404036102394802}
   m_Layer: 0
-  m_Name: point_prefab
+  m_Name: Bodypoint_prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -138,7 +138,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1236002192794702034
+--- !u!114 &5833404036102394802
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -147,7 +147,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6115266609079919860}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 026e4174e5634299be1138730dae9661, type: 3}
+  m_Script: {fileID: 11500000, guid: 197d731107084ecbaae34d9751cf555f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   size: 1
@@ -156,3 +156,14 @@ MonoBehaviour:
   desired_distance: 1
   repositionSpeed: 5
   angleTheshold: 200
+  isDebugMode: 1
+  hasLegs: 0
+  limbPrefab: {fileID: 3197072781907277733, guid: 9ee5ba7a2cedb584a85a74a3eb2bb8e0, type: 3}
+  left_leg_parent: {fileID: 0}
+  right_leg_parent: {fileID: 0}
+  leftPosition: {x: 0, y: 0, z: 0}
+  rightPosition: {x: 0, y: 0, z: 0}
+  attatchedTargetL: {x: 0, y: 0, z: 0}
+  attatchedTargetR: {x: 0, y: 0, z: 0}
+  targetL: {fileID: 0}
+  targetR: {fileID: 0}
