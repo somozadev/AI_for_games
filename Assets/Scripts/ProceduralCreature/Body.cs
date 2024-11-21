@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Splines;
 using Random = UnityEngine.Random;
 
 namespace ProceduralCreature
@@ -9,7 +8,8 @@ namespace ProceduralCreature
     public class Body : MonoBehaviour
     {
         public CreatureConfiguration configuration;
-
+        private SplineContainer _spline; 
+        
         public List<BodyPoint> points;
         public int nOfPoints = 16;
         [SerializeField] GameObject pointPrefab;
@@ -30,6 +30,7 @@ namespace ProceduralCreature
             if (generateMesh)
             {
                 _meshFilter = gameObject.AddComponent<MeshFilter>();
+                _spline = gameObject.AddComponent<SplineContainer>();
                 _meshRenderer = gameObject.AddComponent<MeshRenderer>();
                 _meshRenderer.material = sdfMaterial;
             }
