@@ -1,0 +1,127 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+public class GeneticAlgorithm : MonoBehaviour
+{
+    public int populationSize = 20;
+    public int generations = 50;
+    public float mutationRate = 0.1f;
+
+    private List<Creature> population = new List<Creature>();
+
+    void Start()
+    {
+        // Initialize population
+        for (int i = 0; i < populationSize; i++)
+        {
+            population.Add(new Creature());
+        }
+
+        // Run the genetic algorithm
+        EvolvePopulation();
+    }
+
+    void EvolvePopulation()
+    {
+        for (int generation = 0; generation < generations; generation++)
+        {
+            // Evaluate fitness
+            List<Creature> sortedPopulation = EvaluateFitness();
+
+            // Select parents and generate offspring
+            List<Creature> newPopulation = new List<Creature>();
+            for (int i = 0; i < populationSize / 2; i++)
+            {
+                Creature parent1 = SelectParent(sortedPopulation);
+                Creature parent2 = SelectParent(sortedPopulation);
+
+                Creature child1 = Crossover(parent1, parent2);
+                Creature child2 = Crossover(parent1, parent2);
+
+                child1 = Mutate(child1);
+                child2 = Mutate(child2);
+
+                newPopulation.Add(child1);
+                newPopulation.Add(child2);
+            }
+
+            population = newPopulation;
+
+            Debug.Log($"Generation {generation + 1}: Best Fitness = {FitnessFunction(population[0])}");
+        }
+    }
+
+    List<Creature> EvaluateFitness()
+    {
+        // Sort creatures by fitness (highest fitness first)
+        population.Sort((a, b) => FitnessFunction(b).CompareTo(FitnessFunction(a)));
+        return population;
+    }
+
+    float FitnessFunction(Creature creature)
+    {
+        // Example: Prefer creatures with balanced attributes and at least 2 legs
+        float balance = Mathf.Abs(creature.strength - creature.speed) + Mathf.Abs(creature.speed - creature.health);
+        float legsBonus = creature.legs >= 2 ? 10f : 0f;
+
+        return 100f - balance + legsBonus; // Higher fitness is better
+    }
+
+    Creature SelectParent(List<Creature> sortedPopulation)
+    {
+        // Roulette Wheel Selection
+        float totalFitness = 0f;
+        foreach (Creature creature in sortedPopulation)
+        {
+            totalFitness += FitnessFunction(creature);
+        }
+
+        float randomValue = Random.Range(0, totalFitness);
+        float runningTotal = 0f;
+
+        foreach (Creature creature in sortedPopulation)
+        {
+            runningTotal += FitnessFunction(creature);
+            if (runningTotal >= randomValue)
+            {
+                return creature;
+            }
+        }
+
+        return sortedPopulation[0]; // Fallback
+    }
+
+    Creature Crossover(Creature parent1, Creature parent2)
+    {
+        Creature child = new Creature();
+
+        // Combine genes from both parents
+        child.legs = Random.value > 0.5f ? parent1.legs : parent2.legs;
+        child.arms = Random.value > 0.5f ? parent1.arms : parent2.arms;
+        child.wings = Random.value > 0.5f ? parent1.wings : parent2.wings;
+
+        child.strength = Random.value > 0.5f ? parent1.strength : parent2.strength;
+        child.speed = Random.value > 0.5f ? parent1.speed : parent2.speed;
+        child.health = Random.value > 0.5f ? parent1.health : parent2.health;
+
+        child.color = Color.Lerp(parent1.color, parent2.color, Random.value);
+
+        return child;
+    }
+
+    Creature Mutate(Creature creature)
+    {
+        // Randomly mutate genes with a given probability
+        if (Random.value < mutationRate) creature.legs = Random.Range(0, 5);
+        if (Random.value < mutationRate) creature.arms = Random.Range(0, 5);
+        if (Random.value < mutationRate) creature.wings = Random.Range(0, 3);
+
+        if (Random.value < mutationRate) creature.strength = Random.Range(1f, 10f);
+        if (Random.value < mutationRate) creature.speed = Random.Range(1f, 10f);
+        if (Random.value < mutationRate) creature.health = Random.Range(1f, 10f);
+
+        if (Random.value < mutationRate) creature.color = new Color(Random.value, Random.value, Random.value);
+
+        return creature;
+    }
+}
