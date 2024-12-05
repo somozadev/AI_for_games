@@ -30,8 +30,8 @@ namespace ProceduralCreature
             if (generateMesh)
             {
                 _meshFilter = gameObject.AddComponent<MeshFilter>();
-                _spline = gameObject.AddComponent<SplineContainer>();
-                _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+                _spline = gameObject.GetComponent<SplineContainer>();
+                _meshRenderer = gameObject.GetComponent<MeshRenderer>();
                 _meshRenderer.material = sdfMaterial;
             }
 
@@ -84,8 +84,12 @@ namespace ProceduralCreature
             }
             
             
-            if (generateMesh)
-                _meshFilter.mesh = MeshGenerator.GenerateTriangularMesh(points);
+        //     if (generateMesh)
+        //         _meshFilter.mesh = MeshGenerator.GenerateTriangularMesh(points);
+        
+        if (generateMesh)
+            MeshGenerator.GenerateSplineMesh(_spline, points);
+        
         }
 
         private void Update()
@@ -95,8 +99,11 @@ namespace ProceduralCreature
                 point.Ping();
             }
 
+            // if (generateMesh)
+            //     _meshFilter.mesh = MeshGenerator.GenerateTriangularMesh(points);
+            //
             if (generateMesh)
-                _meshFilter.mesh = MeshGenerator.GenerateTriangularMesh(points);
+                MeshGenerator.UpdateSplineMesh(_spline, points);
         }
 
 

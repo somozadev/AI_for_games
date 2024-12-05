@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Splines;
 
 namespace ProceduralCreature
 {
@@ -83,6 +84,24 @@ namespace ProceduralCreature
             }
         }
 
+        public static void GenerateSplineMesh(SplineContainer spline, List<BodyPoint> bodyPoints)
+        {
+            for (int i = 0; i < bodyPoints.Count; i++)
+            {
+                BezierKnot knot = new BezierKnot(bodyPoints[i].transform.localPosition);
+                spline.Spline.Add(knot);
+            }
+        }
+
+        public static void UpdateSplineMesh(SplineContainer spline, List<BodyPoint> bodyPoints)
+        {
+            for (int i = 0; i < bodyPoints.Count; i++)
+            {
+                BezierKnot knot = new BezierKnot(bodyPoints[i].transform.localPosition);
+                spline.Spline[i] = knot;
+            }
+        }
+
         public static Mesh GenerateTriangularMesh(List<BodyPoint> bodyPoints)
         {
             Mesh mesh = new Mesh();
@@ -120,8 +139,8 @@ namespace ProceduralCreature
                     triangles.Add(currentBottomLeft);
                     triangles.Add(currentBottomRight);
                     triangles.Add(currentTop);
-                    
-                    
+
+
                     triangles.Add(currentTop);
                     triangles.Add(currentBottomRight);
                     triangles.Add(nextTop);
@@ -137,11 +156,11 @@ namespace ProceduralCreature
                     triangles.Add(nextTop);
                     triangles.Add(nextBottomRight);
                     triangles.Add(currentBottomLeft);
-                    
+
                     triangles.Add(nextBottomLeft);
                     triangles.Add(currentBottomLeft);
                     triangles.Add(nextBottomRight);
-                   
+
                     triangles.Add(nextBottomLeft);
                     triangles.Add(currentBottomRight);
                     triangles.Add(currentBottomLeft);
@@ -163,7 +182,7 @@ namespace ProceduralCreature
                     triangles.Add(nextTop);
                     triangles.Add(currentBottomLeft);
                     triangles.Add(nextBottomLeft);
-                    
+
                     triangles.Add(currentBottomLeft);
                     triangles.Add(currentBottomRight);
                     triangles.Add(nextBottomLeft);
@@ -172,13 +191,13 @@ namespace ProceduralCreature
                     triangles.Add(nextBottomRight);
                     triangles.Add(nextBottomLeft);
                 }
+
                 if (i == bodyPoints.Count - 1)
                 {
                     triangles.Add(currentTop);
                     triangles.Add(currentBottomRight);
                     triangles.Add(currentBottomLeft);
                 }
-
             }
 
             mesh.SetVertices(vertices);
@@ -186,7 +205,9 @@ namespace ProceduralCreature
             mesh.RecalculateNormals();
 
             return mesh;
-        } public static Mesh GenerateTriangularMesh(List<Point> bodyPoints)
+        }
+
+        public static Mesh GenerateTriangularMesh(List<Point> bodyPoints)
         {
             Mesh mesh = new Mesh();
             if (bodyPoints.Count < 2) return mesh;
@@ -223,8 +244,8 @@ namespace ProceduralCreature
                     triangles.Add(currentBottomLeft);
                     triangles.Add(currentBottomRight);
                     triangles.Add(currentTop);
-                    
-                    
+
+
                     triangles.Add(currentTop);
                     triangles.Add(currentBottomRight);
                     triangles.Add(nextTop);
@@ -240,11 +261,11 @@ namespace ProceduralCreature
                     triangles.Add(nextTop);
                     triangles.Add(nextBottomRight);
                     triangles.Add(currentBottomLeft);
-                    
+
                     triangles.Add(nextBottomLeft);
                     triangles.Add(currentBottomLeft);
                     triangles.Add(nextBottomRight);
-                   
+
                     triangles.Add(nextBottomLeft);
                     triangles.Add(currentBottomRight);
                     triangles.Add(currentBottomLeft);
@@ -266,7 +287,7 @@ namespace ProceduralCreature
                     triangles.Add(nextTop);
                     triangles.Add(currentBottomLeft);
                     triangles.Add(nextBottomLeft);
-                    
+
                     triangles.Add(currentBottomLeft);
                     triangles.Add(currentBottomRight);
                     triangles.Add(nextBottomLeft);
@@ -275,13 +296,13 @@ namespace ProceduralCreature
                     triangles.Add(nextBottomRight);
                     triangles.Add(nextBottomLeft);
                 }
+
                 if (i == bodyPoints.Count - 2)
                 {
                     triangles.Add(nextBottomLeft);
                     triangles.Add(nextBottomRight);
                     triangles.Add(nextTop);
                 }
-
             }
 
             mesh.SetVertices(vertices);
