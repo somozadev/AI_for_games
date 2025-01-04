@@ -8,21 +8,37 @@ namespace ProceduralCreature
         public float moveSpeed = 3f;
         public float rotSpeed = 300f;
         public float jumpHeight = 1.25f;
-        public float jumpDuration = 0.5f; 
-        
+        public float jumpDuration = 0.5f;
+
         private bool isJumping = false;
         private float jumpStartTime;
         private float initialY;
-        
+
+        public bool isPossessed = false;
+
+        public void Possess()
+        {
+            Camera.main.transform.position =
+                new Vector3(transform.position.x, transform.position.y + 2, transform.position.z - 4);
+            Camera.main.transform.LookAt(transform, Vector3.up);
+            Camera.main.transform.SetParent(transform);
+            isPossessed = true;
+        }
+
         private void Awake()
         {
-            Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y + 2, transform.position.z - 4);
+            if (!isPossessed)
+                return;
+            Camera.main.transform.position =
+                new Vector3(transform.position.x, transform.position.y + 2, transform.position.z - 4);
             Camera.main.transform.LookAt(transform, Vector3.up);
             Camera.main.transform.SetParent(transform);
         }
 
         void Update()
         {
+            if (!isPossessed)
+                return;
             float horizontal = Input.GetAxis("Horizontal");
             float vertical = Input.GetAxis("Vertical");
 
@@ -35,7 +51,8 @@ namespace ProceduralCreature
                 transform.position = newPosition;
 
                 Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotSpeed * Time.deltaTime);
+                transform.rotation =
+                    Quaternion.RotateTowards(transform.rotation, toRotation, rotSpeed * Time.deltaTime);
             }
 
             if (Input.GetKeyDown(KeyCode.Space) && !isJumping)

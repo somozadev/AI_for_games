@@ -23,7 +23,7 @@
             public int SpeedLevels => speed / initial_speed * 100;
             public int EnergyLevels => energy / initial_energy * 100;
             public float perceptionLevels => perception / initial_perception * 100;
-            
+
             public BasicStats(int hp, int dmg, int speed, int energy, float perception)
             {
                 initial_hp = this.hp = hp;
@@ -64,6 +64,17 @@
         }
 
         [System.Serializable]
+        public enum CreatureActions
+        {
+            SearchFood,
+            Eat,
+            Rest,
+            RunAway,
+            Explore,
+            MoveToSafeZone
+        }
+
+        [System.Serializable]
         public enum SocialType
         {
             Lonely,
@@ -72,10 +83,28 @@
         }
 
         [System.Serializable]
-        public enum SpecialSkillsType
+        public enum SelectionType
         {
-            Camuflage,
-            Hibernation,
+            RouletteWheel,
+            Tournament,
+            Elitism,
+            Random
+        }
+
+        [System.Serializable]
+        public enum CrossoverType
+        {
+            OnePoint,
+            TwoPoint,
+            Uniform
+        }
+
+        [System.Serializable]
+        public enum MutationType
+        {
+            FlipBit,
+            Gaussian,
+            Uniform
         }
     }
 }

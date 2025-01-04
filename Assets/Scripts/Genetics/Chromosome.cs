@@ -1,28 +1,29 @@
 ﻿using UnityEngine;
 using System;
+
 namespace Genetics
 {
     //in genetics algo. terms, it's called chromosome. pretty much the collection of parameters we listed in class, called genes 
-    [System.Serializable]
+    [Serializable]
     public class Chromosome
     {
-        public enums.DietType Diet; //{ get; set; }
-        public enums.TerrainType TerrainAffinity; // { get; set; }
-        public enums.ClimateType ClimateAffinity; // { get; set; }
-        public enums.SocialType SocialType;
-        public enums.BasicStats BasicStats; // { get; set; }
-        public int LimbCount; // { get; set; }
-        public int JointsCount; // { get; set; }
-        public float SizeScale; // { get; set; }
-        public Color32 Color; // { get; set; }
+        public enums.DietType Diet; 
+        public enums.TerrainType TerrainAffinity; 
+        public enums.ClimateType ClimateAffinity; 
+
+        public enums.BasicStats BasicStats;
+        public int LimbCount;
+        public int JointsCount; 
+        public float SizeScale; 
+        public Color32 Color; 
 
         [SerializeField] private string _data;
         private static readonly System.Random _random = new System.Random();
-        
+
         public Chromosome()
         {
             Diet = (enums.DietType)_random.Next(0, 5);
-            SocialType = (enums.SocialType)_random.Next(0, 2);
+            // SocialType = (enums.SocialType)_random.Next(0, 2);
             TerrainAffinity = (enums.TerrainType)_random.Next(0, 3);
             ClimateAffinity = (enums.ClimateType)_random.Next(0, 5);
 
@@ -91,25 +92,40 @@ namespace Genetics
             SizeScale = (float)_random.NextDouble() * (2.0f - 0.25f) + 0.250f;
             Color = new Color32((byte)_random.Next(0, 256), (byte)_random.Next(0, 256), (byte)_random.Next(0, 256),
                 255);
-            GenerateDnaData();
+            EncodeDna();
         }
 
-        public string GetDnaData()
+        public Chromosome(string dna)
+        {
+            SetDna(dna);
+        }
+        public string GetDna()
         {
             if (string.IsNullOrEmpty(_data))
             {
-                GenerateDnaData();
+                EncodeDna();
             }
 
             return _data;
         }
 
-        protected void GenerateDnaData()
+        public string SetDna(string data)
+        {
+            if (!string.IsNullOrEmpty(data))
+            {
+                DecodeDna(data);
+            }
+
+            EncodeDna();
+            return _data;
+        }
+
+        protected void EncodeDna()
         {
             var diet = (int)Diet;
             var terrainAffinity = (int)TerrainAffinity;
             var climateAffinity = (int)ClimateAffinity;
-            var socialType = (int)SocialType;
+            // var socialType = (int)SocialType;
 
             var basicStats = (BasicStats.initial_hp << 0) |
                              (BasicStats.initial_dmg << 8) |
@@ -127,7 +143,50 @@ namespace Genetics
             var color = (Color.r << 24) | (Color.g << 16) | (Color.b << 8) | Color.a; // Combine RGBA into an int
 
             _data =
-                $"{diet}|{terrainAffinity}|{climateAffinity}|{socialType}|{basicStats}|{basicStatsCurrent}|{limbCount}|{jointsCount}|{sizeScale}|{color}";
+                $"{diet}|{terrainAffinity}|{climateAffinity}|{basicStats}|{basicStatsCurrent}|{limbCount}|{jointsCount}|{sizeScale}|{color}";
+            //|{socialType}
+        }
+
+        protected void DecodeDna(string dnaData)
+        {
+            var data = dnaData.Split('|');
+
+            if (data.Length != 9)
+            {
+                throw new ArgumentException("Invalid DNA data format.");
+            }
+
+            Diet = (enums.DietType)Enum.Parse(typeof(enums.DietType), data[0]);
+            TerrainAffinity = (enums.TerrainType)Enum.Parse(typeof(enums.TerrainType), data[1]);
+            ClimateAffinity = (enums.ClimateType)Enum.Parse(typeof(enums.ClimateType), data[2]);
+
+            // Decode BasicStats
+            var basicStats = int.Parse(data[3]);
+            BasicStats = new enums.BasicStats(
+                hp: (basicStats & 0xFF),
+                dmg: (basicStats >> 8 & 0xFF),
+                speed: (basicStats >> 16 & 0xFF),
+                energy: (basicStats >> 24 & 0xFF),
+                perception: (basicStats >> 32 & 0xFF)); 
+
+            // Decode BasicStatsCurrent
+            var basicStatsCurrent = int.Parse(data[4]);
+            BasicStats.hp = (basicStatsCurrent & 0xFF);
+            BasicStats.dmg = (basicStatsCurrent >> 8 & 0xFF);
+            BasicStats.speed = (basicStatsCurrent >> 16 & 0xFF);
+            BasicStats.energy = (basicStatsCurrent >> 24 & 0xFF);
+
+            LimbCount = int.Parse(data[5]);
+            JointsCount = int.Parse(data[6]);
+            SizeScale = float.Parse(data[7]);
+            Color = new Color32(
+                (byte)(int.Parse(data[8]) >> 24 & 0xFF),
+                (byte)(int.Parse(data[8]) >> 16 & 0xFF),
+                (byte)(int.Parse(data[8]) >> 8 & 0xFF),
+                (byte)(int.Parse(data[8]) & 0xFF)
+            );
+
+            EncodeDna();
         }
     }
 }
