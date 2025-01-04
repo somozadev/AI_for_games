@@ -5,7 +5,7 @@ namespace Genetics
 {
     public class Algorithm : MonoBehaviour
     {
-        private Population _initialPopulation;
+        public Population _initialPopulation;
         private int _generationId = 0;
         [SerializeField] private int _populationSize = 50;
 
@@ -13,6 +13,13 @@ namespace Genetics
         [SerializeField] private float _timeScale = 1f;
         [SerializeField] private float _maxTime = 600f;
 
+
+        private void Start()
+        {
+            //initial population
+            //calculate fitness 
+            _initialPopulation = new Population(_populationSize);
+        }
 
         private void Update()
         {
@@ -27,7 +34,9 @@ namespace Genetics
             Selection();
             Crossover();
             Mutation();
+            //calculate fitness again 
         }
+        
 
         private void OnValidate()
         {
@@ -56,6 +65,7 @@ namespace Genetics
          steady state, linear and non linear ranking, age-base, genitor selection (fitness based)*/
         private void Crossover()
         {
+            
         } //through crossover of parents chromosome
 
         /*To perform the selection of genes from the parents, one point crossover, two point , uniform, livery, inheritable algorithms,
