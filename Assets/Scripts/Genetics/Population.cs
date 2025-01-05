@@ -15,6 +15,7 @@ namespace Genetics
         public List<Creature> GetPopulation() => _creatures.Select(container => container.Creature).ToList();
         public List<Creature> GetPopulationGo() => _creatures.Select(container => container.Creature).ToList();
 
+        public int GetId() => id;
         public void Init(int size, int id)
         {
             this.id = id;

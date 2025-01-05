@@ -32,8 +32,11 @@ namespace Genetics
         [SerializeField] private float _maxTime = 600f;
 
 
+        [Space(10)] [SerializeField] private AlgorithmCanvas _algorithmCanvas;
+
         private void Start()
         {
+            _algorithmCanvas = GetComponentInChildren<AlgorithmCanvas>();
             GenerateInitialPopulation();
         }
 
@@ -56,6 +59,7 @@ namespace Genetics
             newPopulationCreatures = Selection();
             newPopulationCreatures = Crossover(newPopulationCreatures);
             newPopulationCreatures = Mutation(newPopulationCreatures);
+            _algorithmCanvas.DisplayPopulationData(_currentPopulation);
             _currentPopulation.gameObject.SetActive(false);
             _currentPopulation = Instantiate(populationPrefab, Vector3.zero, Quaternion.identity, transform);
             _currentPopulation.Init(_populationSize, _generationId, newPopulationCreatures);
@@ -240,10 +244,10 @@ namespace Genetics
                 string parent1Dna = parent1.Chromosome.GetDna();
                 string parent2Dna = parent2.Chromosome.GetDna();
 
-            
+
                 int maxCrossoverPoint = Mathf.Min(parent1Dna.Length, parent2Dna.Length);
-                int crossoverPoint = Random.Range(1, maxCrossoverPoint); 
-                
+                int crossoverPoint = Random.Range(1, maxCrossoverPoint);
+
                 Creature offspring1 = new Creature(null);
                 Creature offspring2 = new Creature(null);
 
@@ -275,9 +279,9 @@ namespace Genetics
                 string parent1Dna = parent1.Chromosome.GetDna();
                 string parent2Dna = parent2.Chromosome.GetDna();
 
-                
+
                 int maxCrossoverPoint1 = Mathf.Min(parent1Dna.Length, parent2Dna.Length);
-                int crossoverPoint1 = Random.Range(1, maxCrossoverPoint1 - 1); 
+                int crossoverPoint1 = Random.Range(1, maxCrossoverPoint1 - 1);
                 var crossoverPoint2 = Random.Range(crossoverPoint1, maxCrossoverPoint1);
 
                 Creature offspring1 = new Creature(null);
@@ -334,8 +338,8 @@ namespace Genetics
                     }
                 }
 
-                offspring1.Chromosome = new Chromosome( offspring1Dna.ToString());
-                offspring2.Chromosome = new Chromosome( offspring2Dna.ToString());
+                offspring1.Chromosome = new Chromosome(offspring1Dna.ToString());
+                offspring2.Chromosome = new Chromosome(offspring2Dna.ToString());
 
                 offspring.Add(offspring1);
                 offspring.Add(offspring2);

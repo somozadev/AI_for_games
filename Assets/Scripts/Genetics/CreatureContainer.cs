@@ -36,7 +36,7 @@ namespace Genetics
 
         private void Update()
         {
-            infoDisplay.UpdateDisplay(Creature.Chromosome);
+            infoDisplay.UpdateDisplay(Creature);
         }
     }
 }
