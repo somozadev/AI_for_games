@@ -1,4 +1,5 @@
-﻿using ProceduralCreature;
+﻿using System;
+using ProceduralCreature;
 using UnityEngine;
 
 namespace Genetics
@@ -7,10 +8,10 @@ namespace Genetics
     public class Creature
     {
         public Chromosome Chromosome;
-        private float fitness;
+        [ReadOnly] public float fitness;
 
-        private enums.TerrainType currentTerrain;
-        private enums.ClimateType currentClimate;
+       [ReadOnly] public enums.TerrainType currentTerrain;
+       [ReadOnly] public enums.ClimateType currentClimate;
 
         public float Fitness
         {
@@ -74,11 +75,55 @@ namespace Genetics
         private void UpdateFitness()
         {
             fitness = 0;
-            //unique per creature(?) if predator speed is > important to sprint chase, or prey energy and perception to escape 
-            fitness += Chromosome.BasicStats.hp * .25f;
-            fitness += Chromosome.BasicStats.energy * .3f;
-            fitness += Chromosome.BasicStats.speed * .25f;
-            fitness += Chromosome.BasicStats.perception * .15f;
+            switch (Chromosome.Diet)
+            {
+                case enums.DietType.Herbivorous:
+                    fitness += Chromosome.BasicStats.hp * .25f;
+                    fitness += Chromosome.BasicStats.energy * .3f;
+                    fitness += Chromosome.BasicStats.speed * .2f;
+                    fitness += Chromosome.BasicStats.perception * .15f;
+                    fitness += Chromosome.BasicStats.dmg * .05f;
+                    break;
+                case enums.DietType.Carnivorous:
+                    fitness += Chromosome.BasicStats.hp * .15f;
+                    fitness += Chromosome.BasicStats.energy * .2f;
+                    fitness += Chromosome.BasicStats.speed * .35f;
+                    fitness += Chromosome.BasicStats.perception * .2f;
+                    fitness += Chromosome.BasicStats.dmg * .20f;
+                    break;
+                case enums.DietType.Omnivorous:
+                    fitness += Chromosome.BasicStats.hp * .25f;
+                    fitness += Chromosome.BasicStats.energy * .3f;
+                    fitness += Chromosome.BasicStats.speed * .25f;
+                    fitness += Chromosome.BasicStats.perception * .15f;
+                    fitness += Chromosome.BasicStats.dmg * .1f;
+                    break;
+                case enums.DietType.Crystavorous:
+                    fitness += Chromosome.BasicStats.hp * .4f;
+                    fitness += Chromosome.BasicStats.energy * .3f;
+                    fitness += Chromosome.BasicStats.speed * .05f;
+                    fitness += Chromosome.BasicStats.perception * .25f;
+                    fitness += Chromosome.BasicStats.dmg * .02f;
+                    break;
+                case enums.DietType.Frugivorous:
+                    fitness += Chromosome.BasicStats.hp * .2f;
+                    fitness += Chromosome.BasicStats.energy * .3f;
+                    fitness += Chromosome.BasicStats.speed * .25f;
+                    fitness += Chromosome.BasicStats.perception * .15f;
+                    fitness += Chromosome.BasicStats.dmg * .05f;
+
+                    break;
+                case enums.DietType.Lumivorous:
+                    fitness += Chromosome.BasicStats.hp * .2f;
+                    fitness += Chromosome.BasicStats.energy * .3f;
+                    fitness += Chromosome.BasicStats.speed * .05f;
+                    fitness += Chromosome.BasicStats.perception * .25f;
+                    fitness += Chromosome.BasicStats.dmg * .02f;
+
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
             if (IsInSuitableEnvironment()) //if in correct terrain area, fitness increased 
                 fitness += 10;

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.Splines;
+// using UnityEngine.Splines;
 using Random = UnityEngine.Random;
 
 namespace ProceduralCreature
@@ -8,8 +9,8 @@ namespace ProceduralCreature
     public class Body : MonoBehaviour
     {
         public CreatureConfiguration configuration;
-        private SplineContainer _spline; 
-        
+        // private SplineContainer _spline;
+
         public List<BodyPoint> points;
         public int nOfPoints = 16;
         [SerializeField] GameObject pointPrefab;
@@ -23,33 +24,52 @@ namespace ProceduralCreature
 
         public Material sdfMaterial;
         public float smoothness = 8.0f;
-
-
-        private void Awake()
+        private Color32 currentColor;
+        public void ConfigureBody(Color32 color, int bodyLength, int numLegsPoints, float sizeScale)
         {
             if (generateMesh)
             {
-                _meshFilter = gameObject.AddComponent<MeshFilter>();
-                _spline = gameObject.GetComponent<SplineContainer>();
-                _meshRenderer = gameObject.GetComponent<MeshRenderer>();
-                _meshRenderer.material = sdfMaterial;
+                // _meshFilter = gameObject.AddComponent<MeshFilter>();
+                // _spline = gameObject.GetComponent<SplineContainer>();
+                // _meshRenderer = gameObject.GetComponent<MeshRenderer>();
+                // _meshRenderer.material = sdfMaterial;
             }
+
+            configuration.bodyLength = bodyLength;
+            configuration.bodySizes = new float[bodyLength];
+            for (int i = 0; i < bodyLength; i++)
+                configuration.bodySizes[i] = Random.Range(0.1f, 0.2f + sizeScale);
+            if (numLegsPoints == 0)
+                numLegsPoints = 1;
+            configuration.legsInBodyN = numLegsPoints;
+            SetNewMaterial(color);
+            currentColor = color;
 
             points = new List<BodyPoint>();
             Init();
         }
 
-        private void Start()
+        public void SetNewMaterial(Color32 color)
         {
+            _meshRenderer = GetComponent<MeshRenderer>();
+            if (_meshRenderer != null)
+            {
+                Destroy(_meshRenderer.material);
+
+                Material newMaterial = new Material(Shader.Find("Standard"));
+                newMaterial.color = color;
+                _meshRenderer.material = newMaterial;
+            }
         }
+
 
         private void Init()
         {
-            float[] sizes = new float[] { };
+            float[] sizes = configuration.bodySizes;
 
             if (configuration)
             {
-                nOfPoints = configuration.bodyLenght;
+                nOfPoints = configuration.bodyLength;
                 sizes = configuration.bodySizes;
             }
 
@@ -61,7 +81,12 @@ namespace ProceduralCreature
                 p.transform.position = new Vector3(p.transform.position.x, p.transform.position.y,
                     p.transform.position.z - i * 4);
                 var bp = p.GetComponent<BodyPoint>();
-                bp.ScaleBy(sizes.Length > 0 ? sizes[i] : Random.Range(1.0f, 1.0f));
+                bp.ScaleBy(sizes.Length > 0 ? 1 + 1.25f* sizes[i] : Random.Range(1.0f, 1.0f));
+                 
+                Material newMaterial = new Material(Shader.Find("Standard"));
+                newMaterial.color = currentColor;
+                bp.GetComponentInChildren<MeshRenderer>().material = newMaterial;
+
                 bp.SetIndex(i + 1);
                 points.Add(bp);
             }
@@ -82,14 +107,11 @@ namespace ProceduralCreature
                     points[i].Init(configuration ? i % configuration.legsInBodyN == 0 : i % 2 == 0);
                 else points[i].Init(i % 2 == 0);
             }
-            
-            
-        //     if (generateMesh)
-        //         _meshFilter.mesh = MeshGenerator.GenerateTriangularMesh(points);
-        
-        if (generateMesh)
-            MeshGenerator.GenerateSplineMesh(_spline, points);
-        
+            //     if (generateMesh)
+            //         _meshFilter.mesh = MeshGenerator.GenerateTriangularMesh(points);
+            //
+            // if (generateMesh)
+            //     MeshGenerator.GenerateSplineMesh(_spline, points);
         }
 
         private void Update()
@@ -101,9 +123,9 @@ namespace ProceduralCreature
 
             // if (generateMesh)
             //     _meshFilter.mesh = MeshGenerator.GenerateTriangularMesh(points);
-            //
-            if (generateMesh)
-                MeshGenerator.UpdateSplineMesh(_spline, points);
+           
+            // if (generateMesh)
+            //     MeshGenerator.UpdateSplineMesh(_spline, points);
         }
 
 

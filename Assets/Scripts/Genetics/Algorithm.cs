@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
@@ -42,7 +41,10 @@ namespace Genetics
         {
             _elapsedTime += Time.deltaTime;
             if (_elapsedTime >= _maxTime)
+            {
                 NewGeneration();
+                _elapsedTime = 0;
+            }
         }
 
         private void NewGeneration()
@@ -51,12 +53,11 @@ namespace Genetics
             List<Creature> newPopulationCreatures = new List<Creature>();
 
             _generationId++;
-            _elapsedTime = 0;
             newPopulationCreatures = Selection();
             newPopulationCreatures = Crossover(newPopulationCreatures);
             newPopulationCreatures = Mutation(newPopulationCreatures);
-
-            _currentPopulation = Instantiate(populationPrefab, Vector3.zero, quaternion.identity, transform);
+            _currentPopulation.gameObject.SetActive(false);
+            _currentPopulation = Instantiate(populationPrefab, Vector3.zero, Quaternion.identity, transform);
             _currentPopulation.Init(_populationSize, _generationId, newPopulationCreatures);
             //create the new generation 
         }
@@ -69,9 +70,8 @@ namespace Genetics
 
         private void GenerateInitialPopulation()
         {
-            _currentPopulation = Instantiate(populationPrefab, Vector3.zero, quaternion.identity, transform);
+            _currentPopulation = Instantiate(populationPrefab, Vector3.zero, Quaternion.identity, transform);
             _currentPopulation.Init(_populationSize, _generationId);
-            _generationId++;
         }
 
         //select parents for the breeding , here for description but in our instance prob. each creature has its own conditions for breeding given
@@ -232,7 +232,7 @@ namespace Genetics
         {
             List<Creature> offspring = new List<Creature>();
 
-            for (int i = 0; i < selectedCreatures.Count; i += 2)
+            for (int i = 0; i < selectedCreatures.Count - 1; i += 2)
             {
                 Creature parent1 = selectedCreatures[i];
                 Creature parent2 = selectedCreatures[i + 1];
@@ -240,10 +240,12 @@ namespace Genetics
                 string parent1Dna = parent1.Chromosome.GetDna();
                 string parent2Dna = parent2.Chromosome.GetDna();
 
-                var crossoverPoint = Random.Range(1, parent1Dna.Length);
-
-                Creature offspring1 = new Creature();
-                Creature offspring2 = new Creature();
+            
+                int maxCrossoverPoint = Mathf.Min(parent1Dna.Length, parent2Dna.Length);
+                int crossoverPoint = Random.Range(1, maxCrossoverPoint); 
+                
+                Creature offspring1 = new Creature(null);
+                Creature offspring2 = new Creature(null);
 
 
                 string offspring1Dna = parent1Dna.Substring(0, crossoverPoint) + parent2Dna.Substring(crossoverPoint);
@@ -273,11 +275,13 @@ namespace Genetics
                 string parent1Dna = parent1.Chromosome.GetDna();
                 string parent2Dna = parent2.Chromosome.GetDna();
 
-                var crossoverPoint1 = Random.Range(1, parent1Dna.Length - 1);
-                var crossoverPoint2 = Random.Range(crossoverPoint1, parent1Dna.Length);
+                
+                int maxCrossoverPoint1 = Mathf.Min(parent1Dna.Length, parent2Dna.Length);
+                int crossoverPoint1 = Random.Range(1, maxCrossoverPoint1 - 1); 
+                var crossoverPoint2 = Random.Range(crossoverPoint1, maxCrossoverPoint1);
 
-                Creature offspring1 = new Creature();
-                Creature offspring2 = new Creature();
+                Creature offspring1 = new Creature(null);
+                Creature offspring2 = new Creature(null);
 
 
                 string offspring1Dna = parent1Dna.Substring(0, crossoverPoint1) +
@@ -307,8 +311,8 @@ namespace Genetics
                 Creature parent1 = selectedCreatures[i];
                 Creature parent2 = selectedCreatures[i + 1];
 
-                Creature offspring1 = new Creature();
-                Creature offspring2 = new Creature();
+                Creature offspring1 = new Creature(null);
+                Creature offspring2 = new Creature(null);
 
                 string parent1Dna = parent1.Chromosome.GetDna();
                 string parent2Dna = parent2.Chromosome.GetDna();
@@ -330,8 +334,8 @@ namespace Genetics
                     }
                 }
 
-                offspring1.Chromosome = new Chromosome(offspring1Dna.ToString());
-                offspring2.Chromosome = new Chromosome(offspring2Dna.ToString());
+                offspring1.Chromosome = new Chromosome( offspring1Dna.ToString());
+                offspring2.Chromosome = new Chromosome( offspring2Dna.ToString());
 
                 offspring.Add(offspring1);
                 offspring.Add(offspring2);
@@ -350,32 +354,61 @@ namespace Genetics
         {
             List<Creature> mutatedCreatures = new List<Creature>();
             mutatedCreatures.AddRange(crossedCreatures);
+
             foreach (var creature in mutatedCreatures)
             {
                 var chromosome = creature.Chromosome;
                 string dna = chromosome.GetDna();
-                string[] dnaSegments = dna.Split('|');
+                string[] dnaBitSegments = dna.Split('|');
 
-                for (int i = 0; i < dnaSegments.Length; i++)
+                for (int i = 0; i < dnaBitSegments.Length; i++)
                 {
-                    char[] binarySegment = ConvertToBinarySegment(dnaSegments[i]);
-                    var mutations = Random.Range(1, binarySegment.Length / 5); //  ~20% of the bits
-
-                    for (int j = 0; j < mutations; j++)
+                    if (IsNumericSegment(dnaBitSegments[i]))
                     {
-                        var randomIndex = Random.Range(0, binarySegment.Length);
-                        binarySegment[randomIndex] = binarySegment[randomIndex] == '0' ? '1' : '0';
-                    }
+                        char[] binarySegment = ConvertToBinarySegment(dnaBitSegments[i]);
+                        int bitsToMutate = Mathf.CeilToInt(binarySegment.Length * 0.2f);
 
-                    dnaSegments[i] = ConvertFromBinarySegment(binarySegment, dnaSegments[i]);
+                        for (int j = 0; j < bitsToMutate; j++)
+                        {
+                            int bitIndex = GetBiasedBitIndex(binarySegment.Length);
+                            binarySegment[bitIndex] = binarySegment[bitIndex] == '0' ? '1' : '0';
+                        }
+
+                        dnaBitSegments[i] = ConvertFromBinarySegment(binarySegment, dnaBitSegments[i]);
+
+                        dnaBitSegments[i] = ClampValue(dnaBitSegments[i], i);
+                    }
+                    else if (IsCommaSeparatedValues(dnaBitSegments[i]))
+                    {
+                        string[] values = dnaBitSegments[i].Split(',');
+
+                        for (int j = 0; j < values.Length; j++)
+                        {
+                            char[] binaryValue = ConvertToBinarySegment(values[j]);
+
+                            if (binaryValue.Length > 0)
+                            {
+                                int bitIndex = GetBiasedBitIndex(binaryValue.Length);
+                                binaryValue[bitIndex] = binaryValue[bitIndex] == '0' ? '1' : '0';
+                            }
+
+                            values[j] = ConvertFromBinarySegment(binaryValue, values[j]);
+                        }
+
+                        string parsedValues = string.Join(",", values);
+                        parsedValues = ClampValue(parsedValues, i);
+                        dnaBitSegments[i] = parsedValues;
+                    }
                 }
 
-                var mutatedDna = string.Join("|", dnaSegments);
+                var mutatedDna = string.Join("|", dnaBitSegments);
+                chromosome.ResetDna();
                 chromosome.SetDna(mutatedDna);
             }
 
             return mutatedCreatures;
         }
+
 
         /* Gaussian Mutation adds a small random value to a gene in each creature's chromosome in the population,
         based on a Gaussian distribution, allowing for smoother and more continuous changes in traits. */
@@ -471,7 +504,7 @@ namespace Genetics
             foreach (var creature in mutatedCreatures)
             {
                 var chromosome = creature.Chromosome;
-                var randomGeneIndex = Random.Range(0, 12); //12 variables in chromosome data
+                var randomGeneIndex = Random.Range(0, 12);
                 switch (randomGeneIndex)
                 {
                     case 0:
@@ -487,19 +520,19 @@ namespace Genetics
                             (enums.ClimateType)Random.Range(0, Enum.GetValues(typeof(enums.ClimateType)).Length);
                         break;
                     case 3:
-                        chromosome.BasicStats.hp += Random.Range(0, chromosome.BasicStats.hp / 5);
+                        chromosome.BasicStats.hp += Random.Range(1, chromosome.BasicStats.hp / 5);
                         break;
                     case 4:
-                        chromosome.BasicStats.speed += Random.Range(0, chromosome.BasicStats.speed / 5);
+                        chromosome.BasicStats.speed += Random.Range(1, chromosome.BasicStats.speed / 5);
                         break;
                     case 5:
-                        chromosome.BasicStats.dmg += Random.Range(0, chromosome.BasicStats.dmg / 5);
+                        chromosome.BasicStats.dmg += Random.Range(1, chromosome.BasicStats.dmg / 5);
                         break;
                     case 6:
-                        chromosome.BasicStats.energy += Random.Range(0, chromosome.BasicStats.energy / 5);
+                        chromosome.BasicStats.energy += Random.Range(1, chromosome.BasicStats.energy / 5);
                         break;
                     case 7:
-                        chromosome.BasicStats.perception += Random.Range(0, chromosome.BasicStats.perception / 5);
+                        chromosome.BasicStats.perception += Random.Range(1, chromosome.BasicStats.perception / 5);
                         break;
                     case 8:
                         chromosome.LimbCount += Random.Range(0, chromosome.LimbCount / 2);
@@ -512,9 +545,9 @@ namespace Genetics
                         break;
                     case 11:
                         chromosome.Color = new Color(
-                            Random.Range(0f, 256f),
-                            Random.Range(0f, 256f),
-                            Random.Range(0f, 256f));
+                            Random.Range(1f, 256f),
+                            Random.Range(1f, 256f),
+                            Random.Range(1f, 256f));
                         break;
                 }
             }
@@ -522,11 +555,117 @@ namespace Genetics
             return mutatedCreatures;
         }
 
+        #region Bit-Operations
+
+        private int GetBiasedBitIndex(int length)
+        {
+            float biasFactor = 2.0f;
+            float[] probabilities = new float[length];
+
+            for (int i = 0; i < length; i++)
+            {
+                probabilities[i] = Mathf.Pow(biasFactor, i);
+            }
+
+            float sum = probabilities.Sum();
+            for (int i = 0; i < length; i++)
+            {
+                probabilities[i] /= sum;
+            }
+
+            float randomValue = Random.value;
+            float cumulativeProbability = 0.0f;
+
+            for (int i = 0; i < length; i++)
+            {
+                cumulativeProbability += probabilities[i];
+                if (randomValue < cumulativeProbability)
+                {
+                    return i;
+                }
+            }
+
+            return length - 1;
+        }
+
+        private string ClampValue(string value, int segmentIndex)
+        {
+            switch (segmentIndex)
+            {
+                case 0:
+                    return ClampInt(value, 0, 5);
+                case 1:
+                    return ClampInt(value, 0, 2);
+                case 2:
+                    return ClampInt(value, 0, 4);
+                case 3:
+                case 4:
+                    string[] subValues = value.Split(',');
+                    subValues[0] = ClampInt(subValues[0], 0, 60);
+                    subValues[1] = ClampInt(subValues[1], 0, 35);
+                    subValues[2] = ClampInt(subValues[2], 0, 50);
+                    subValues[3] = ClampInt(subValues[3], 0, 100);
+                    subValues[4] = ClampInt(subValues[4], 0, 40);
+                    return string.Join(",", subValues);
+                case 5:
+                    return ClampInt(value, 0, 120);
+                case 6:
+                    return ClampInt(value, 1, 60);
+                case 7:
+                    return ClampFloat(value, 0.1f, 5.0f);
+                case 8:
+                    string[] rgbaValues = value.Split(',');
+                    rgbaValues[0] = ClampInt(rgbaValues[0], 0, 255);
+                    rgbaValues[1] = ClampInt(rgbaValues[1], 0, 255);
+                    rgbaValues[2] = ClampInt(rgbaValues[2], 0, 255);
+                    rgbaValues[3] = ClampInt(rgbaValues[3], 0, 255);
+                    return string.Join(",", rgbaValues);
+                default:
+                    return value;
+            }
+        }
+
+        private string ClampInt(string value, int min, int max)
+        {
+            int intValue = int.Parse(value);
+            intValue = Mathf.Clamp(intValue, min, max);
+            return intValue.ToString();
+        }
+
+        private string ClampFloat(string value, float min, float max)
+        {
+            float floatValue = float.Parse(value);
+            floatValue = Mathf.Clamp(floatValue, min, max);
+            return floatValue.ToString("0.##");
+        }
+
+        private bool IsNumericSegment(string segment)
+        {
+            return int.TryParse(segment, out _);
+        }
+
+        private bool IsFloatSegment(string segment)
+        {
+            return float.TryParse(segment, out _);
+        }
+
+        private bool IsCommaSeparatedValues(string segment)
+        {
+            return segment.Contains(",");
+        }
+
         private char[] ConvertToBinarySegment(string segment)
         {
-            if (int.TryParse(segment, out int intValue))
+            int intValue;
+            if (int.TryParse(segment, out intValue))
             {
-                return Convert.ToString(intValue, 2).PadLeft(32, '0').ToCharArray();
+                return Convert.ToString(intValue, 2).PadLeft(8, '0').ToCharArray();
+            }
+
+            if (float.TryParse(segment, out float floatValue))
+            {
+                intValue = BitConverter.SingleToInt32Bits(floatValue);
+                return Convert.ToString(intValue, 2).PadLeft(16, '0').ToCharArray();
             }
 
             return segment.ToCharArray();
@@ -536,12 +675,21 @@ namespace Genetics
         {
             if (int.TryParse(originalSegment, out _))
             {
-                int intValue = Convert.ToInt32(new string(binarySegment), 2);
+                var intValue = Convert.ToInt32(new string(binarySegment), 2);
                 return intValue.ToString();
+            }
+
+            if (float.TryParse(originalSegment, out _))
+            {
+                var intValue = Convert.ToInt32(new string(binarySegment), 2);
+                var floatValue = BitConverter.Int32BitsToSingle(intValue);
+                return floatValue.ToString("0.##");
             }
 
             return new string(binarySegment);
         }
+
+        #endregion
 
         // Using Box-Muller transform for normal distribution
         private float NormalDistribution(float mean, float stddev)

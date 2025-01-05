@@ -26,6 +26,11 @@
 
             public BasicStats(int hp, int dmg, int speed, int energy, float perception)
             {
+                if (hp == 0) hp = 1;
+                if (dmg == 0) dmg = 1;
+                if (speed == 0) speed = 1;
+                if (energy == 0) energy = 1;
+                if (perception == 0) perception = 1;
                 initial_hp = this.hp = hp;
                 initial_dmg = this.dmg = dmg;
                 initial_speed = this.speed = speed;

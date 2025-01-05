@@ -91,15 +91,13 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.splines": {
-      "version": "2.2.1",
+      "version": "file:C:/Users/somoz/Downloads/com.unity.splines-2.7.1",
       "depth": 0,
-      "source": "registry",
+      "source": "local",
       "dependencies": {
-        "com.unity.ugui": "1.0.0",
-        "com.unity.mathematics": "1.2.1",
-        "com.unity.settings-manager": "1.0.3"
-      },
-      "url": "https://packages.unity.com"
+        "com.unity.settings-manager": "1.0.3",
+        "com.unity.mathematics": "1.2.1"
+      }
     },
     "com.unity.test-framework": {
       "version": "1.1.33",

@@ -7,10 +7,12 @@ namespace Genetics.Environmental
     public class EnviromentArea : MonoBehaviour
     {
         [SerializeField] private Enviroment AreaEnviroment; // { get; set; }
-        [SerializeField] private Color areaColor=Color.green; // { get; set; }
+        [SerializeField] private Color areaColor = Color.green; // { get; set; }
         private BoxCollider _boxCollider;
         private DayNight _dayNight;
-        
+
+        public Enviroment Enviroment => AreaEnviroment;
+
         private void Start()
         {
             _dayNight = GameManager.Instance.DayNight;
@@ -27,13 +29,17 @@ namespace Genetics.Environmental
 
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log("Objet enter in area: " + other.name);
+            if (!other.CompareTag("Creature")) return;
+            other.GetComponent<CreatureContainer>().Creature.UpdateEnviroment(Enviroment);
         }
 
-        private void OnTriggerExit(Collider other)
+        private void OnTriggerStay(Collider other)
         {
-            Debug.Log("Objet left the area: " + other.name);
+            if (!other.CompareTag("Creature")) return;
+            Debug.Log("AAAA");
+            other.GetComponent<CreatureContainer>().Creature.UpdateEnviroment(Enviroment);
         }
+
 
         private void OnDrawGizmos()
         {
@@ -42,7 +48,7 @@ namespace Genetics.Environmental
 
             Matrix4x4 originalMatrix = Gizmos.matrix;
             Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.color = areaColor; 
+            Gizmos.color = areaColor;
             Gizmos.DrawWireCube(_boxCollider.center, _boxCollider.size);
             Gizmos.matrix = originalMatrix;
         }

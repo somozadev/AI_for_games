@@ -92,7 +92,7 @@ namespace ProceduralCreature
                 spline.Spline.Add(knot);
             }
         }
-
+        
         public static void UpdateSplineMesh(SplineContainer spline, List<BodyPoint> bodyPoints)
         {
             for (int i = 0; i < bodyPoints.Count; i++)

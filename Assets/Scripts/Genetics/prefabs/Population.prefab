@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 575f15f3cb0940d7bc6d402316a10c95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  areaSize: 20
+  areaSize: 200
   creaturePrefab: {fileID: 7458393556688584506, guid: 0beb14f626be86e48bef9f588c538ab4, type: 3}
   _creatures: []
   id: 0
