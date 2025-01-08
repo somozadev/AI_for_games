@@ -381,8 +381,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 5286.2305, z: 1}
+  m_Center: {x: 0, y: -2643.6157, z: 0}
 --- !u!23 &21681588
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -441,8 +441,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 21681586}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1, z: 0}
-  m_LocalScale: {x: 432.29398, y: 0.1, z: 432.29398}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1600, y: 0.1, z: 1600}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1585,10 +1585,10 @@ MonoBehaviour:
   _mutationType: 0
   _currentPopulation: {fileID: 0}
   populationPrefab: {fileID: 5293583728479625480, guid: a1e8da891bc579c4b803b859d5b603ae, type: 3}
-  _populationSize: 22
+  _populationSize: 10
   _elapsedTime: 0
   _timeScale: 1
-  _maxTime: 3
+  _maxTime: 222
   _algorithmCanvas: {fileID: 595744111}
 --- !u!4 &1009132610
 Transform:
@@ -1947,6 +1947,55 @@ Transform:
   m_Father: {fileID: 1940826979}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1199200014
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1199200015}
+  - component: {fileID: 1199200016}
+  m_Layer: 0
+  m_Name: FoodSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1199200015
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1199200014}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 26.09, y: 0, z: -27.54}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1759760148}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1199200016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1199200014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d60dfa2047a347e292ecd00c088fbdb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _fruitPrefab: {fileID: 2208920687820986432, guid: 772f6472af63b76499a8108207b60f7e, type: 3}
+  _plantPrefab: {fileID: 4771224544105198670, guid: 10c95ade27660984e95554df10b34c04, type: 3}
+  _crystalPrefab: {fileID: 554204830797469859, guid: 1daa38993a1e30e4cb2e8ff1cf92084f, type: 3}
+  _luminPrefab: {fileID: 8914476077639444366, guid: fc6e9acb31f110644ad9895af01f7df2, type: 3}
+  amountPerFoodType: 50
 --- !u!1 &1219293099
 GameObject:
   m_ObjectHideFlags: 0
@@ -3514,6 +3563,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1985685197}
+  - {fileID: 1199200015}
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4384,8 +4434,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 813588d0a0854dc7a22475bc6d2a9fcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _secondsPerDay: 5
-  _secondsPerNight: 5
+  _secondsPerDay: 300
+  _secondsPerNight: 300
   _directionalLight: {fileID: 1219293100}
   _initialXRotation: -5
   _minLightIntensity: 0.1

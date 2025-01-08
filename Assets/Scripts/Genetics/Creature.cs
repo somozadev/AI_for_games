@@ -51,7 +51,7 @@ namespace Genetics
         public void OnRestPerformed()
         {
             if (Chromosome.BasicStats.EnergyLevels < 100)
-                Chromosome.BasicStats.energy += 1;
+                Chromosome.BasicStats.energy += 3;
             if (Chromosome.BasicStats.HpLevels < 100)
                 Chromosome.BasicStats.hp += 5;
             UpdateFitness();

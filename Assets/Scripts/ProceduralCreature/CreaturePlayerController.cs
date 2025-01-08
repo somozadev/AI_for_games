@@ -15,6 +15,7 @@ namespace ProceduralCreature
         private float initialY;
 
         public bool isPossessed = false;
+        public bool isAiManaged = false;
 
         public void Possess()
         {

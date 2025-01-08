@@ -1090,6 +1090,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5674262804838241184}
   - component: {fileID: 7458393556688584506}
+  - component: {fileID: 3575508909963483023}
   m_Layer: 0
   m_Name: Creature
   m_TagString: Creature
@@ -1154,6 +1155,23 @@ MonoBehaviour:
     currentClimate: 0
   infoDisplay: {fileID: 4667061232789561630}
   controller: {fileID: 4522722318575201719}
+  _movableController: {fileID: 0}
+--- !u!114 &3575508909963483023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4538233563941044096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59dbebff24b542edae1663764915536a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  creatureContainer: {fileID: 0}
+  exploreState:
+    _targetPosition: {x: 0, y: 0, z: 0}
+    _targetSet: 0
 --- !u!1 &4861165995398165155
 GameObject:
   m_ObjectHideFlags: 0
@@ -3320,6 +3338,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3846702130677121603, guid: 4ff18387005c831429305a8ba70ee0e8, type: 3}
+      propertyPath: _display
+      value: 
+      objectReference: {fileID: 4667061232789561630}
     m_RemovedComponents:
     - {fileID: 2187495123318902407, guid: 4ff18387005c831429305a8ba70ee0e8, type: 3}
     - {fileID: 4377948014400546118, guid: 4ff18387005c831429305a8ba70ee0e8, type: 3}

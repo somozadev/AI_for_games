@@ -71,12 +71,11 @@
         [System.Serializable]
         public enum CreatureActions
         {
+            Idle,
             SearchFood,
-            Eat,
             Rest,
-            RunAway,
-            Explore,
-            MoveToSafeZone
+            Flee,
+            Explore
         }
 
         [System.Serializable]

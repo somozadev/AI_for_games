@@ -45,6 +45,26 @@ public class AlgorithmCanvas : MonoBehaviour
         UpdateTMPText(lowestFitness, min);
         UpdateTMPText(standardDeviation, stdDev);
         UpdateTMPText(fitnessRange, range);
+
+        SavePopulationData(average, deviation, median, max, min, stdDev, range);
+    }
+
+    private void SavePopulationData(float average, float deviation, float median, float max, float min, float stdDev,
+        float range)
+    {
+        CSVManager csvManager = new CSVManager("population_data.csv");
+        string[] data = new string[]
+        {
+            Time.time.ToString(),
+            average.ToString("F2"),
+            deviation.ToString("F2"),
+            median.ToString("F2"),
+            max.ToString("F2"),
+            min.ToString("F2"),
+            stdDev.ToString("F2"),
+            range.ToString("F2")
+        };
+        csvManager.AppendData(data);
     }
 
     private void UpdateTMPText(TMP_Text textElement, float newValue)

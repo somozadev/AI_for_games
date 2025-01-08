@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Genetics;
 using UnityEngine;
 // using UnityEngine.Splines;
 using Random = UnityEngine.Random;
@@ -8,6 +10,8 @@ namespace ProceduralCreature
 {
     public class Body : MonoBehaviour
     {
+        [SerializeField] private CreatureInfoDisplay _display;
+        
         public CreatureConfiguration configuration;
         // private SplineContainer _spline;
 
@@ -25,8 +29,11 @@ namespace ProceduralCreature
         public Material sdfMaterial;
         public float smoothness = 8.0f;
         private Color32 currentColor;
-        public void ConfigureBody(Color32 color, int bodyLength, int numLegsPoints, float sizeScale)
+
+        private CreatureContainer _container;
+        public void ConfigureBody(CreatureContainer container, Color32 color, int bodyLength, int numLegsPoints, float sizeScale)
         {
+            _container = container;
             if (generateMesh)
             {
                 // _meshFilter = gameObject.AddComponent<MeshFilter>();
@@ -54,11 +61,16 @@ namespace ProceduralCreature
             _meshRenderer = GetComponent<MeshRenderer>();
             if (_meshRenderer != null)
             {
-                Destroy(_meshRenderer.material);
-
-                Material newMaterial = new Material(Shader.Find("Standard"));
-                newMaterial.color = color;
-                _meshRenderer.material = newMaterial;
+                if (_meshRenderer.material != null)
+                {
+                    _meshRenderer.material.color = color;
+                }
+                else
+                {
+                    Material newMaterial = new Material(Shader.Find("Standard"));
+                    newMaterial.color = color;
+                    _meshRenderer.material = newMaterial;
+                }
             }
         }
 
@@ -81,18 +93,27 @@ namespace ProceduralCreature
                 p.transform.position = new Vector3(p.transform.position.x, p.transform.position.y,
                     p.transform.position.z - i * 4);
                 var bp = p.GetComponent<BodyPoint>();
-                bp.ScaleBy(sizes.Length > 0 ? 1 + 1.25f* sizes[i] : Random.Range(1.0f, 1.0f));
-                 
-                Material newMaterial = new Material(Shader.Find("Standard"));
-                newMaterial.color = currentColor;
-                bp.GetComponentInChildren<MeshRenderer>().material = newMaterial;
+                bp.ScaleBy(sizes.Length > 0 ? 1 + 1.25f * sizes[i] : Random.Range(1.0f, 1.0f));
+
+                if (bp.GetComponentInChildren<MeshRenderer>().material != null)
+                {
+                    bp.GetComponentInChildren<MeshRenderer>().material.color = currentColor;
+                }
+                else
+                {
+                    Material newMaterial = new Material(Shader.Find("Standard"));
+                    newMaterial.color = currentColor;
+                    bp.GetComponentInChildren<MeshRenderer>().material = newMaterial;
+                }
 
                 bp.SetIndex(i + 1);
                 points.Add(bp);
             }
 
             points[0].gameObject.AddComponent<CreaturePlayerController>();
-
+            points[0].gameObject.AddComponent<BodyTriggerDetector>().Init(_container, _container.Creature.Chromosome.BasicStats.perception);
+            _display.transform.SetParent(points[0].transform);
+            
             for (int i = 0; i < points.Count; i++)
             {
                 if (i > 0)
@@ -123,7 +144,7 @@ namespace ProceduralCreature
 
             // if (generateMesh)
             //     _meshFilter.mesh = MeshGenerator.GenerateTriangularMesh(points);
-           
+
             // if (generateMesh)
             //     MeshGenerator.UpdateSplineMesh(_spline, points);
         }

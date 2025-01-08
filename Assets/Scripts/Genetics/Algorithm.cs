@@ -34,7 +34,7 @@ namespace Genetics
 
         [Space(10)] [SerializeField] private AlgorithmCanvas _algorithmCanvas;
 
-        private void Start()
+        private void Awake()
         {
             _algorithmCanvas = GetComponentInChildren<AlgorithmCanvas>();
             GenerateInitialPopulation();
@@ -60,7 +60,8 @@ namespace Genetics
             newPopulationCreatures = Crossover(newPopulationCreatures);
             newPopulationCreatures = Mutation(newPopulationCreatures);
             _algorithmCanvas.DisplayPopulationData(_currentPopulation);
-            _currentPopulation.gameObject.SetActive(false);
+            // _currentPopulation.gameObject.SetActive(false);
+            Destroy(_currentPopulation.gameObject);
             _currentPopulation = Instantiate(populationPrefab, Vector3.zero, Quaternion.identity, transform);
             _currentPopulation.Init(_populationSize, _generationId, newPopulationCreatures);
             //create the new generation 

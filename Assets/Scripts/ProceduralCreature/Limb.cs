@@ -68,7 +68,8 @@ namespace ProceduralCreature
             
             
             lasStableHandYPosition = -0.5f; //set with body raycast to ground
-            isLockedY = true;   
+            isLockedY = true;
+            transform.localScale = Vector3.one * 0.2f;
 
         }
 

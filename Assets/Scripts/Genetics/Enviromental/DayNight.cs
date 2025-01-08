@@ -1,9 +1,12 @@
-﻿using UnityEngine;
+﻿using Genetics.Enviromental;
+using UnityEngine;
 
 namespace Genetics
 {
     public class DayNight : MonoBehaviour
     {
+
+        
         [SerializeField] private float _secondsPerDay = 120f;
         [SerializeField] private float _secondsPerNight = 120f;
 
@@ -28,6 +31,7 @@ namespace Genetics
             _currentCycleTime = 0f;
             DaysPassed = 0f;
             SecondsPassed = 0f;
+            GameManager.Instance.FoodSpawner.NewDay();
         }
 
         private void Update()
@@ -46,6 +50,7 @@ namespace Genetics
             {
                 _currentCycleTime = 0f;
                 DaysPassed++;
+                GameManager.Instance.FoodSpawner.NewDay();
             }
 
             CurrentHour = (24f * _currentCycleTime) / _totalCycleDuration;

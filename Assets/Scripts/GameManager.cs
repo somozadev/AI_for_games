@@ -1,10 +1,13 @@
 ﻿using Genetics;
+using Genetics.Enviromental;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     public DayNight DayNight { get; private set; }
+    public FoodSpawner FoodSpawner { get; private set; }
+    public Vector2 TerrainSize { get; private set; }
 
     private void Awake()
     {
@@ -19,6 +22,7 @@ public class GameManager : MonoBehaviour
         }
 
         DayNight = GetComponentInChildren<DayNight>();
-
+        FoodSpawner = GetComponentInChildren<FoodSpawner>();
+        TerrainSize = new Vector2(1600, 1600);
     }
 }
