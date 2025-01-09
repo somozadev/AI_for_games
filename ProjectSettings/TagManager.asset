@@ -9,6 +9,7 @@ TagManager:
   - Plant
   - Fruit
   - Crystal
+  - Lumin
   layers:
   - Default
   - TransparentFX

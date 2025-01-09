@@ -5,28 +5,26 @@ namespace Genetics
 {
     public class AgentStateManager : MonoBehaviour
     {
-
         [SerializeField] private CreatureContainer creatureContainer;
-        private Creature creature; 
-        public Creature GetCreature() => creature;
+        public Creature GetCreature() => creatureContainer.Creature;
         public CreatureContainer GetCreatureContainer() => creatureContainer;
-        
-        [SerializeField]  private BaseState currentState;
+
+        public BaseState GetCurrentState() => currentState;
+        [SerializeField] private BaseState currentState;
         public ExploreState exploreState = new ExploreState();
         public FleeState fleeState = new FleeState();
         public RestState restState = new RestState();
+        public EatState eatState = new EatState();
         public SearchFruitState searchFruitState = new SearchFruitState();
         public SearchPlantState searchPlantState = new SearchPlantState();
         public SearchCreatureState searchCreatureState = new SearchCreatureState();
         public SearchCrystalState searchCrystalState = new SearchCrystalState();
         public SearchLuminState searchLuminState = new SearchLuminState();
-        
+
         private void Awake()
         {
             creatureContainer = GetComponent<CreatureContainer>();
-            creature = creatureContainer.Creature;
             creatureContainer.onTriggerEnterEvent.AddListener(OnTriggerEnterAgent);
-
         }
 
         private void Start()
@@ -46,9 +44,15 @@ namespace Genetics
             currentState.EnterState(this);
         }
 
+        public void SwitchState(BaseState state, Collider collidedObject)
+        {
+            currentState = state;
+            currentState.EnterState(this, collidedObject);
+        }
+
         private void OnTriggerEnterAgent(Collider other)
         {
-            currentState.OnTriggerEnter(other,this, creature);
+            currentState.OnTriggerEnter(other, this, creatureContainer.Creature);
         }
     }
 }

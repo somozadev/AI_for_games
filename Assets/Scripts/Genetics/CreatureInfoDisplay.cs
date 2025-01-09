@@ -6,6 +6,7 @@ using UnityEngine;
 public class CreatureInfoDisplay : MonoBehaviour
 {
     [SerializeField] private TMP_Text fitness;
+    [SerializeField] private TMP_Text currentState;
 
     [SerializeField] private TMP_Text diet;
     [SerializeField] private TMP_Text terrain;
@@ -17,7 +18,7 @@ public class CreatureInfoDisplay : MonoBehaviour
     [SerializeField] private TMP_Text perception;
     [SerializeField] private TMP_Text joints;
 
-    public void UpdateDisplay(Creature creature)
+    public void UpdateDisplay(Creature creature, string state)
     {
         Chromosome chromosome = creature.Chromosome;
         fitness.text = creature.Fitness.ToString(CultureInfo.InvariantCulture);
@@ -30,6 +31,7 @@ public class CreatureInfoDisplay : MonoBehaviour
         energy.text = chromosome.BasicStats.energy.ToString();
         perception.text = chromosome.BasicStats.perception.ToString(CultureInfo.InvariantCulture);
         joints.text = chromosome.JointsCount.ToString();
+        currentState.text = state;
     }
 }
 

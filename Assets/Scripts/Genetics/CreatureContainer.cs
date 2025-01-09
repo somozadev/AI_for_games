@@ -14,7 +14,8 @@ namespace Genetics
         [SerializeField] private CreatureInfoDisplay infoDisplay;
         [SerializeField] private Body controller;
         [SerializeField] private CreaturePlayerController _movableController;
-
+        [SerializeField] private AgentStateManager _stateManager;
+        
         public UnityEvent<Collider> onTriggerEnterEvent;
 
 
@@ -25,6 +26,7 @@ namespace Genetics
             controller = GetComponentInChildren<Body>();
             _collider = gameObject.AddComponent<SphereCollider>();
             infoDisplay = GetComponentInChildren<CreatureInfoDisplay>();
+            _stateManager = GetComponent<AgentStateManager>();
             _collider.isTrigger = true;
         }
 
@@ -46,7 +48,7 @@ namespace Genetics
 
         private void Update()
         {
-            infoDisplay.UpdateDisplay(Creature);
+            infoDisplay.UpdateDisplay(Creature, _stateManager.GetCurrentState().stateName);
         }
     }
 }

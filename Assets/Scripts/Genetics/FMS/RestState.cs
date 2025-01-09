@@ -9,8 +9,19 @@ namespace Genetics
         private float elapsedTime = 0f;
         private float maxIdleTime = 5f;
 
+        public RestState()
+        {
+            stateName = "Resting";
+        }
+
         public override void EnterState(AgentStateManager agent)
         {
+            return;
+        }
+
+        public override void EnterState(AgentStateManager agent, Collider collidedObject)
+        {
+            return;
         }
 
         public override void UpdateState(AgentStateManager agent)

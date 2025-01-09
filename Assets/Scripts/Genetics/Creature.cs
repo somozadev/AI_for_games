@@ -10,8 +10,8 @@ namespace Genetics
         public Chromosome Chromosome;
         [ReadOnly] public float fitness;
 
-       [ReadOnly] public enums.TerrainType currentTerrain;
-       [ReadOnly] public enums.ClimateType currentClimate;
+        [ReadOnly] public enums.TerrainType currentTerrain;
+        [ReadOnly] public enums.ClimateType currentClimate;
 
         public float Fitness
         {
@@ -39,12 +39,17 @@ namespace Genetics
         {
             if (Chromosome.BasicStats.energy >= 5)
                 Chromosome.BasicStats.energy -= 5;
+            if (Chromosome.BasicStats.energy <= 0)
+                Chromosome.BasicStats.energy = 0;
+            UpdateFitness();
         }
 
-        public void OnEatFood() //maybe each food gives different energy amounts
+        public void OnEatFood()
         {
             if (Chromosome.BasicStats.EnergyLevels < 100)
                 Chromosome.BasicStats.energy += 10;
+            if (Chromosome.BasicStats.EnergyLevels > 100)
+                Chromosome.BasicStats.energy = Chromosome.BasicStats.initial_energy;
             UpdateFitness();
         }
 
@@ -54,6 +59,11 @@ namespace Genetics
                 Chromosome.BasicStats.energy += 3;
             if (Chromosome.BasicStats.HpLevels < 100)
                 Chromosome.BasicStats.hp += 5;
+
+            if (Chromosome.BasicStats.EnergyLevels > 100)
+                Chromosome.BasicStats.energy = Chromosome.BasicStats.initial_energy;
+            if (Chromosome.BasicStats.HpLevels > 100)
+                Chromosome.BasicStats.hp = Chromosome.BasicStats.initial_hp;
             UpdateFitness();
         }
 
@@ -63,12 +73,16 @@ namespace Genetics
             var jointFactor = 1f / Chromosome.JointsCount;
             var sizeFactor = 1f / Chromosome.SizeScale;
             Chromosome.BasicStats.hp -= Mathf.Max(1, Mathf.RoundToInt(baseDamage * jointFactor * sizeFactor));
+            if (Chromosome.BasicStats.hp <= 0)
+                Chromosome.BasicStats.hp = 0;
             UpdateFitness();
         }
 
         public void OnMovePerformed()
         {
             Chromosome.BasicStats.energy -= Mathf.CeilToInt(2 * Chromosome.SizeScale);
+            if (Chromosome.BasicStats.energy <= 0)
+                Chromosome.BasicStats.energy = 0;
             UpdateFitness();
         }
 

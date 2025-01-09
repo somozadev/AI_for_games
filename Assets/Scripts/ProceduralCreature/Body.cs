@@ -65,12 +65,12 @@ namespace ProceduralCreature
                 {
                     _meshRenderer.material.color = color;
                 }
-                else
-                {
-                    Material newMaterial = new Material(Shader.Find("Standard"));
-                    newMaterial.color = color;
-                    _meshRenderer.material = newMaterial;
-                }
+                // else
+                // {
+                //     Material newMaterial = new Material(Shader.Find("Standard"));
+                //     newMaterial.color = color;
+                //     _meshRenderer.material = newMaterial;
+                // }
             }
         }
 
@@ -99,12 +99,12 @@ namespace ProceduralCreature
                 {
                     bp.GetComponentInChildren<MeshRenderer>().material.color = currentColor;
                 }
-                else
-                {
-                    Material newMaterial = new Material(Shader.Find("Standard"));
-                    newMaterial.color = currentColor;
-                    bp.GetComponentInChildren<MeshRenderer>().material = newMaterial;
-                }
+                // else
+                // {
+                //     Material newMaterial = new Material(Shader.Find("Standard"));
+                //     newMaterial.color = currentColor;
+                //     bp.GetComponentInChildren<MeshRenderer>().material = newMaterial;
+                // }
 
                 bp.SetIndex(i + 1);
                 points.Add(bp);
