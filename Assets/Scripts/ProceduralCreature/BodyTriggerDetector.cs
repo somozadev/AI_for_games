@@ -12,10 +12,10 @@ namespace ProceduralCreature
 
         private void Awake()
         {
-            if(!GetComponent<SphereCollider>())
+            if (!GetComponent<SphereCollider>())
             {
-               _collider = gameObject.AddComponent<SphereCollider>();
-               _collider.isTrigger = true;
+                _collider = gameObject.AddComponent<SphereCollider>();
+                _collider.isTrigger = true;
             }
         }
 
@@ -25,11 +25,17 @@ namespace ProceduralCreature
             _initialized = true;
             _collider.radius = perception;
         }
-        
+
         private void OnTriggerEnter(Collider other)
         {
-            if(!_initialized) return;
+            if (!_initialized) return;
             _container.onTriggerEnterEvent?.Invoke(other);
+        }
+
+        private void OnTriggerStay(Collider other)
+        {
+            if (!_initialized) return;
+            _container.onTriggerStayEvent?.Invoke(other);
         }
     }
 }

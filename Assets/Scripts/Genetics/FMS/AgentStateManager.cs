@@ -11,10 +11,12 @@ namespace Genetics
 
         public BaseState GetCurrentState() => currentState;
         [SerializeField] private BaseState currentState;
+
         public ExploreState exploreState = new ExploreState();
-        public FleeState fleeState = new FleeState();
+        // public RoamState roamState = new RoamState(); when introduced enviroment chunks
         public RestState restState = new RestState();
         public EatState eatState = new EatState();
+        public AttackState attackState = new AttackState();
         public SearchFruitState searchFruitState = new SearchFruitState();
         public SearchPlantState searchPlantState = new SearchPlantState();
         public SearchCreatureState searchCreatureState = new SearchCreatureState();
@@ -25,6 +27,7 @@ namespace Genetics
         {
             creatureContainer = GetComponent<CreatureContainer>();
             creatureContainer.onTriggerEnterEvent.AddListener(OnTriggerEnterAgent);
+            creatureContainer.onTriggerStayEvent.AddListener(OnTriggerStayAgent);
         }
 
         private void Start()
@@ -33,7 +36,7 @@ namespace Genetics
             currentState.EnterState(this);
         }
 
-        private void Update()
+        private void Update() 
         {
             currentState.UpdateState(this);
         }
@@ -53,6 +56,11 @@ namespace Genetics
         private void OnTriggerEnterAgent(Collider other)
         {
             currentState.OnTriggerEnter(other, this, creatureContainer.Creature);
+        }
+
+        private void OnTriggerStayAgent(Collider other)
+        {
+            currentState.OnTriggerStay(other, this, creatureContainer.Creature);
         }
     }
 }

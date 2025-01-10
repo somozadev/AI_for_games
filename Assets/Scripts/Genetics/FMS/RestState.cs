@@ -7,7 +7,7 @@ namespace Genetics
     public class RestState : BaseState
     {
         private float elapsedTime = 0f;
-        private float maxIdleTime = 5f;
+        private float maxIdleTime = 2.5f;
 
         public RestState()
         {
@@ -58,6 +58,23 @@ namespace Genetics
         public override void OnTriggerEnter(Collider other, AgentStateManager agent, Creature creature)
         {
             return;
+        }
+
+        public override void OnTriggerStay(Collider other, AgentStateManager agent, Creature creature)
+        {
+            if (other.CompareTag("Fruit") && creature.Chromosome.Diet == enums.DietType.Frugivorous ||
+                creature.Chromosome.Diet == enums.DietType.Omnivorous)
+                agent.SwitchState(agent.searchFruitState, other);
+            else if (other.CompareTag("Creature") && creature.Chromosome.Diet == enums.DietType.Carnivorous ||
+                     creature.Chromosome.Diet == enums.DietType.Omnivorous)
+                agent.SwitchState(agent.searchCreatureState, other);
+            else if (other.CompareTag("Plant") && creature.Chromosome.Diet == enums.DietType.Herbivorous ||
+                     creature.Chromosome.Diet == enums.DietType.Omnivorous)
+                agent.SwitchState(agent.searchPlantState, other);
+            else if (other.CompareTag("Crystal") && creature.Chromosome.Diet == enums.DietType.Crystavorous)
+                agent.SwitchState(agent.searchCrystalState, other);
+            else if (other.CompareTag("Lumin") && creature.Chromosome.Diet == enums.DietType.Lumivorous)
+                agent.SwitchState(agent.searchLuminState, other);
         }
     }
 }

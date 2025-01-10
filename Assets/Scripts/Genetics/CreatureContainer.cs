@@ -15,12 +15,14 @@ namespace Genetics
         [SerializeField] private Body controller;
         [SerializeField] private CreaturePlayerController _movableController;
         [SerializeField] private AgentStateManager _stateManager;
-        
+
         public UnityEvent<Collider> onTriggerEnterEvent;
+        public UnityEvent<Collider> onTriggerStayEvent;
 
 
         public CreaturePlayerController GetCreatureController() => _movableController;
         public Body GetHeadPoint() => controller;
+
         private void Awake()
         {
             controller = GetComponentInChildren<Body>();
@@ -31,18 +33,19 @@ namespace Genetics
         }
 
 
-
         public void Init()
         {
             Creature = new Creature();
-            controller.ConfigureBody(this,Creature.Chromosome.Color, Creature.Chromosome.JointsCount, Creature.Chromosome.LimbCount, Creature.Chromosome.SizeScale);
+            controller.ConfigureBody(this, Creature.Chromosome.Color, Creature.Chromosome.JointsCount,
+                Creature.Chromosome.LimbCount, Creature.Chromosome.SizeScale);
             _movableController = controller.points[0].GetComponent<CreaturePlayerController>();
         }
 
         public void Init(string dna)
         {
             Creature = new Creature(dna);
-            controller.ConfigureBody(this,Creature.Chromosome.Color, Creature.Chromosome.JointsCount, Creature.Chromosome.LimbCount, Creature.Chromosome.SizeScale);
+            controller.ConfigureBody(this, Creature.Chromosome.Color, Creature.Chromosome.JointsCount,
+                Creature.Chromosome.LimbCount, Creature.Chromosome.SizeScale);
             _movableController = controller.points[0].GetComponent<CreaturePlayerController>();
         }
 

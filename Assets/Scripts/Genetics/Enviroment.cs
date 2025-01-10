@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Genetics.Environmental;
+using UnityEngine;
 
 namespace Genetics
 {
@@ -8,9 +9,14 @@ namespace Genetics
         public enums.TerrainType Terrain; // { get; set; }
         public enums.ClimateType Climate; // { get; set; }
         public float Temperature; // { get; set; }
-        public float PreyAvailability; // { get; set; } // [ 0.0 - 1.0 ]
-        public float PlantAvailability; // { get; set; } // [ 0.0 - 1.0 ]
-        public bool HasPredators; // { get; set; }
+        private static readonly System.Random _random = new System.Random();
+
+        public Enviroment()
+        {
+            Terrain = (enums.TerrainType)_random.Next(0, System.Enum.GetValues(typeof(enums.TerrainType)).Length);
+            Climate = (enums.ClimateType)_random.Next(0, System.Enum.GetValues(typeof(enums.ClimateType)).Length);
+            Temperature = 0f;
+        }
 
         public void UpdateTemperature(float currentHour)
         {

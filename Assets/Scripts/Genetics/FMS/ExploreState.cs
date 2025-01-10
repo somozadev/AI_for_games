@@ -106,5 +106,19 @@ namespace Genetics
             _targetPosition = agent.GetCreatureContainer().GetCreatureController().transform.position + randomOffset;
             _targetSet = true;
         }
+        public override void OnTriggerStay(Collider other, AgentStateManager agent, Creature creature)
+        {
+            if (other.CompareTag("Fruit") && creature.Chromosome.Diet == enums.DietType.Frugivorous ||
+                creature.Chromosome.Diet == enums.DietType.Omnivorous)
+                agent.SwitchState(agent.searchFruitState, other);
+            else if (other.CompareTag("Creature") && creature.Chromosome.Diet == enums.DietType.Carnivorous ||
+                     creature.Chromosome.Diet == enums.DietType.Omnivorous)
+                agent.SwitchState(agent.searchCreatureState, other);
+            else if (other.CompareTag("Plant") && creature.Chromosome.Diet == enums.DietType.Herbivorous ||
+                     creature.Chromosome.Diet == enums.DietType.Omnivorous)
+                agent.SwitchState(agent.searchPlantState, other);
+            else if (other.CompareTag("Crystal") && creature.Chromosome.Diet == enums.DietType.Crystavorous)
+                agent.SwitchState(agent.searchCrystalState, other);
+        }
     }
 }

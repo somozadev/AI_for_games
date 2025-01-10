@@ -11,6 +11,7 @@ namespace Genetics
         CreaturePlayerController controller;
         private float distanceThreshold = 25f;
         private float accumulatedDistance = 0f;
+        private Collider _targetRef;
 
         public SearchFruitState()
         {
@@ -26,17 +27,19 @@ namespace Genetics
         {
             controller = agent.GetCreatureContainer().GetCreatureController();
             _targetPosition = collidedObject.transform.position;
+            _targetRef = collidedObject;
             _targetSet = true;
         }
 
         public override void UpdateState(AgentStateManager agent)
         {
             if (!controller) return;
-
+            if(agent.GetCreature().Chromosome.BasicStats.energy <= 0)
+                agent.SwitchState(agent.restState);
             if (Vector3.Distance(controller.transform.position, _targetPosition) <= 1f)
             {
                 _targetSet = false;
-                agent.SwitchState(agent.eatState);
+                agent.SwitchState(agent.eatState, _targetRef);
             }
 
             MoveTowardsTarget(agent);
@@ -74,6 +77,10 @@ namespace Genetics
                 controller.transform.rotation = Quaternion.RotateTowards(controller.transform.rotation, toRotation,
                     controller.rotSpeed * Time.deltaTime);
             }
+        }
+        public override void OnTriggerStay(Collider other, AgentStateManager agent, Creature creature)
+        {
+            
         }
     }
 }

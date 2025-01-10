@@ -136,6 +136,31 @@ namespace Genetics.Enviromental
             }
         }
 
+        public void Remove(GameObject given)
+        {
+            if (given.gameObject.activeSelf)
+            {
+                given.gameObject.SetActive(false);
+
+                if (given.TryGetComponent(out Fruit fruit))
+                {
+                    _fruitPool.Enqueue(fruit);
+                }
+                else if (given.TryGetComponent(out Plant plant))
+                {
+                    _plantPool.Enqueue(plant);
+                }
+                else if (given.TryGetComponent(out Crystal crystal))
+                {
+                    _crystalPool.Enqueue(crystal);
+                }
+                else if (given.TryGetComponent(out Lumin lumin))
+                {
+                    _luminPool.Enqueue(lumin);
+                }
+            }
+        }
+
         private Vector3 GetRandomPosition()
         {
             var x = GameManager.Instance.TerrainSize.x / 2 - 40;

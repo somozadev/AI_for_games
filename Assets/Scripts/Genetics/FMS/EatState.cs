@@ -5,28 +5,46 @@ namespace Genetics
     [System.Serializable]
     public class EatState : BaseState
     {
+        private float elapsedTime = 0f;
+        private float maxEatingTime = 6f;
+        private GameObject foodGoRef;
+
         public EatState()
         {
             stateName = "Eating";
         }
+
+
         public override void EnterState(AgentStateManager agent)
         {
-            throw new System.NotImplementedException();
+            return;
         }
 
         public override void EnterState(AgentStateManager agent, Collider collidedObject)
         {
-            throw new System.NotImplementedException();
+            foodGoRef = collidedObject.gameObject;
         }
 
         public override void UpdateState(AgentStateManager agent)
         {
-            throw new System.NotImplementedException();
+            elapsedTime += Time.deltaTime;
+            if (elapsedTime >= maxEatingTime)
+            {
+                elapsedTime = 0f;
+                agent.GetCreature().OnEatFood();
+                if (foodGoRef)
+                    GameManager.Instance.FoodSpawner.Remove(foodGoRef);
+                agent.SwitchState(agent.exploreState);
+            }
         }
+
 
         public override void OnTriggerEnter(Collider other, AgentStateManager agent, Creature creature)
         {
-            throw new System.NotImplementedException();
+        }
+        public override void OnTriggerStay(Collider other, AgentStateManager agent, Creature creature)
+        {
+            
         }
     }
 }

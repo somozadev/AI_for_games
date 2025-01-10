@@ -21,6 +21,10 @@ namespace Genetics.Environmental
                 GetComponent<Collider>().isTrigger = true;
         }
 
+        public void RandomEnviroment()
+        {
+            AreaEnviroment = new Enviroment();  
+        }
 
         private void LateUpdate()
         {
@@ -30,14 +34,13 @@ namespace Genetics.Environmental
         private void OnTriggerEnter(Collider other)
         {
             if (!other.CompareTag("Creature")) return;
-            other.GetComponent<CreatureContainer>().Creature.UpdateEnviroment(Enviroment);
+            other.GetComponentInParent<CreatureContainer>().Creature.UpdateEnviroment(Enviroment);
         }
 
         private void OnTriggerStay(Collider other)
         {
             if (!other.CompareTag("Creature")) return;
-            Debug.Log("AAAA");
-            other.GetComponent<CreatureContainer>().Creature.UpdateEnviroment(Enviroment);
+            other.GetComponentInParent<CreatureContainer>().Creature.UpdateEnviroment(Enviroment);
         }
 
 

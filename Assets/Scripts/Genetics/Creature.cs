@@ -47,18 +47,38 @@ namespace Genetics
         public void OnEatFood()
         {
             if (Chromosome.BasicStats.EnergyLevels < 100)
-                Chromosome.BasicStats.energy += 10;
+                Chromosome.BasicStats.energy += 15;
+            if (Chromosome.BasicStats.HpLevels < 100)
+                Chromosome.BasicStats.hp += 10;
+            
             if (Chromosome.BasicStats.EnergyLevels > 100)
                 Chromosome.BasicStats.energy = Chromosome.BasicStats.initial_energy;
+            if (Chromosome.BasicStats.HpLevels > 100)
+                Chromosome.BasicStats.hp = Chromosome.BasicStats.initial_hp;
+
+            UpdateFitness();
+        }
+        public void OnEatPray()
+        {
+            if (Chromosome.BasicStats.EnergyLevels < 100)
+                Chromosome.BasicStats.energy += 15 * 2;
+            if (Chromosome.BasicStats.HpLevels < 100)
+                Chromosome.BasicStats.hp += 10 * 2;
+            
+            if (Chromosome.BasicStats.EnergyLevels > 100)
+                Chromosome.BasicStats.energy = Chromosome.BasicStats.initial_energy;
+            if (Chromosome.BasicStats.HpLevels > 100)
+                Chromosome.BasicStats.hp = Chromosome.BasicStats.initial_hp;
+
             UpdateFitness();
         }
 
         public void OnRestPerformed()
         {
             if (Chromosome.BasicStats.EnergyLevels < 100)
-                Chromosome.BasicStats.energy += 3;
+                Chromosome.BasicStats.energy += 2;
             if (Chromosome.BasicStats.HpLevels < 100)
-                Chromosome.BasicStats.hp += 5;
+                Chromosome.BasicStats.hp += 2;
 
             if (Chromosome.BasicStats.EnergyLevels > 100)
                 Chromosome.BasicStats.energy = Chromosome.BasicStats.initial_energy;

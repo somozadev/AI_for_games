@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8683977484600656258}
   m_Layer: 0
   m_Name: Sphere
-  m_TagString: Sphere
+  m_TagString: Creature
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -117,7 +117,7 @@ GameObject:
   - component: {fileID: 5833404036102394802}
   m_Layer: 0
   m_Name: Bodypoint_prefab
-  m_TagString: Untagged
+  m_TagString: Creature
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

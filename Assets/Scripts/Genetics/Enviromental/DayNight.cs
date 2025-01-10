@@ -5,8 +5,6 @@ namespace Genetics
 {
     public class DayNight : MonoBehaviour
     {
-
-        
         [SerializeField] private float _secondsPerDay = 120f;
         [SerializeField] private float _secondsPerNight = 120f;
 
@@ -15,15 +13,16 @@ namespace Genetics
         private float _totalCycleDuration;
         private float _currentCycleTime;
 
-        [Header("Light Settings")]
-        [SerializeField] private Light _directionalLight;
+        [Header("Light Settings")] [SerializeField]
+        private Light _directionalLight;
+
         [SerializeField] private float _initialXRotation = -5f;
         [Range(0f, 1f)] [SerializeField] private float _minLightIntensity = 0.1f;
         [Range(0f, 1f)] [SerializeField] private float _maxLightIntensity = 1f;
 
         private float _lightIntensity;
 
-        public float CurrentHour { get; private set; } 
+        public float CurrentHour { get; private set; }
 
         private void Start()
         {
@@ -32,6 +31,7 @@ namespace Genetics
             DaysPassed = 0f;
             SecondsPassed = 0f;
             GameManager.Instance.FoodSpawner.NewDay();
+            GameManager.Instance.EnviromentSpawner.Spawn();
         }
 
         private void Update()
@@ -51,6 +51,7 @@ namespace Genetics
                 _currentCycleTime = 0f;
                 DaysPassed++;
                 GameManager.Instance.FoodSpawner.NewDay();
+                GameManager.Instance.EnviromentSpawner.Spawn();
             }
 
             CurrentHour = (24f * _currentCycleTime) / _totalCycleDuration;
@@ -67,7 +68,8 @@ namespace Genetics
             }
             else
             {
-                float nightFraction = (cycleFraction - _secondsPerDay / _totalCycleDuration) / (_secondsPerNight / _totalCycleDuration);
+                float nightFraction = (cycleFraction - _secondsPerDay / _totalCycleDuration) /
+                                      (_secondsPerNight / _totalCycleDuration);
                 _lightIntensity = Mathf.Lerp(_maxLightIntensity, _minLightIntensity, nightFraction);
             }
 
