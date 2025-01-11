@@ -311,7 +311,8 @@ namespace Genetics
         private List<Creature> UniformCrossover(List<Creature> selectedCreatures)
         {
             List<Creature> offspring = new List<Creature>();
-            for (int i = 0; i < selectedCreatures.Count; i += 2)
+
+            for (int i = 0; i < selectedCreatures.Count - 1; i += 2)
             {
                 Creature parent1 = selectedCreatures[i];
                 Creature parent2 = selectedCreatures[i + 1];
@@ -322,10 +323,12 @@ namespace Genetics
                 string parent1Dna = parent1.Chromosome.GetDna();
                 string parent2Dna = parent2.Chromosome.GetDna();
 
+                int minLength = Mathf.Min(parent1Dna.Length, parent2Dna.Length);
+
                 StringBuilder offspring1Dna = new StringBuilder();
                 StringBuilder offspring2Dna = new StringBuilder();
 
-                for (int j = 0; j < parent1Dna.Length; j++)
+                for (int j = 0; j < minLength; j++)
                 {
                     if (Random.Range(0, 2) == 0)
                     {
@@ -348,6 +351,7 @@ namespace Genetics
 
             return offspring;
         }
+
 
         #endregion
 
@@ -417,89 +421,85 @@ namespace Genetics
 
         /* Gaussian Mutation adds a small random value to a gene in each creature's chromosome in the population,
         based on a Gaussian distribution, allowing for smoother and more continuous changes in traits. */
-        private List<Creature> GaussianMutation(List<Creature> crossedCreatures)
-        {
-            float mutationStrength = 0.2f;
-            List<Creature> mutatedCreatures = new List<Creature>();
-            mutatedCreatures.AddRange(crossedCreatures);
-            foreach (var creature in mutatedCreatures)
-            {
-                var chromosome = creature.Chromosome;
-                var randomGeneIndex = Random.Range(0, 12); //12 variables in chromosome data
-                switch (randomGeneIndex)
-                {
-                    case 0:
-                        chromosome.Diet =
-                            (enums.DietType)Random.Range(0, Enum.GetValues(typeof(enums.DietType)).Length);
-                        break;
-                    case 1:
-                        chromosome.TerrainAffinity =
-                            (enums.TerrainType)Random.Range(0, Enum.GetValues(typeof(enums.TerrainType)).Length);
-                        break;
-                    case 2:
-                        chromosome.ClimateAffinity =
-                            (enums.ClimateType)Random.Range(0, Enum.GetValues(typeof(enums.ClimateType)).Length);
-                        break;
-                    case 3:
-                        chromosome.BasicStats.hp = Mathf.Clamp(
-                            chromosome.BasicStats.hp + Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 10)),
-                            0, 100);
-                        break;
-                    case 4:
-                        chromosome.BasicStats.speed = Mathf.Clamp(
-                            chromosome.BasicStats.speed +
-                            Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 10)),
-                            0, 100);
-                        break;
-                    case 5:
-                        chromosome.BasicStats.dmg = Mathf.Clamp(
-                            chromosome.BasicStats.dmg +
-                            Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 10)),
-                            0, 100);
-                        break;
-                    case 6:
-                        chromosome.BasicStats.energy = Mathf.Clamp(
-                            chromosome.BasicStats.energy +
-                            Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 10)),
-                            0, 100);
-                        break;
-                    case 7:
-                        chromosome.BasicStats.perception = Mathf.Clamp(
-                            chromosome.BasicStats.perception +
-                            Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 10)),
-                            0, 100);
-                        break;
-                    case 8:
-                        chromosome.LimbCount = Mathf.Clamp(
-                            chromosome.LimbCount + Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 5)),
-                            0, 10);
-                        break;
-                    case 9:
-                        chromosome.JointsCount = Mathf.Clamp(
-                            chromosome.JointsCount + Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 5)),
-                            0, 10);
-                        break;
-                    case 10:
-                        chromosome.SizeScale = Mathf.Clamp(
-                            chromosome.SizeScale + Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 5)),
-                            0.25f, 2.0f);
-                        break;
-                    case 11:
-                        chromosome.Color.r = (byte)Mathf.Clamp(
-                            chromosome.Color.r + Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 255)),
-                            0, 255);
-                        chromosome.Color.g = (byte)Mathf.Clamp(
-                            chromosome.Color.g + Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 255)),
-                            0, 255);
-                        chromosome.Color.b = (byte)Mathf.Clamp(
-                            chromosome.Color.b + Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 255)),
-                            0, 255);
-                        break;
-                }
-            }
+private List<Creature> GaussianMutation(List<Creature> crossedCreatures)
+{
+    float mutationStrength = 2f;
+    List<Creature> mutatedCreatures = new List<Creature>(crossedCreatures);
 
-            return mutatedCreatures;
+    foreach (var creature in mutatedCreatures)
+    {
+        var chromosome = creature.Chromosome;
+        int geneCount = 12; // Número total de genes posibles
+        int randomGeneIndex = Random.Range(0, geneCount);
+
+        switch (randomGeneIndex)
+        {
+            case 0: // Diet
+                chromosome.Diet = (enums.DietType)Random.Range(0, Enum.GetValues(typeof(enums.DietType)).Length);
+                break;
+            case 1: // Terrain Affinity
+                chromosome.TerrainAffinity = (enums.TerrainType)Random.Range(0, Enum.GetValues(typeof(enums.TerrainType)).Length);
+                break;
+            case 2: // Climate Affinity
+                chromosome.ClimateAffinity = (enums.ClimateType)Random.Range(0, Enum.GetValues(typeof(enums.ClimateType)).Length);
+                break;
+            case 3: // HP
+                chromosome.BasicStats.hp = Mathf.Clamp(
+                    chromosome.BasicStats.hp + Mathf.RoundToInt(NormalDistribution(1, mutationStrength * 10)),
+                    0, 100);
+                break;
+            case 4: // Speed
+                chromosome.BasicStats.speed = Mathf.Clamp(
+                    chromosome.BasicStats.speed + Mathf.RoundToInt(NormalDistribution(1, mutationStrength * 10)),
+                    0, 100);
+                break;
+            case 5: // Damage
+                chromosome.BasicStats.dmg = Mathf.Clamp(
+                    chromosome.BasicStats.dmg + Mathf.RoundToInt(NormalDistribution(1, mutationStrength * 10)),
+                    0, 100);
+                break;
+            case 6: // Energy
+                chromosome.BasicStats.energy = Mathf.Clamp(
+                    chromosome.BasicStats.energy + Mathf.RoundToInt(NormalDistribution(1, mutationStrength * 10)),
+                    0, 100);
+                break;
+            case 7: // Perception
+                chromosome.BasicStats.perception = Mathf.Clamp(
+                    chromosome.BasicStats.perception + Mathf.RoundToInt(NormalDistribution(1, mutationStrength * 10)),
+                    0, 100);
+                break;
+            case 8: // Limb Count
+                chromosome.LimbCount = Mathf.Clamp(
+                    chromosome.LimbCount + Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 2)),
+                    0, 10);
+                break;
+            case 9: // Joint Count
+                chromosome.JointsCount = Mathf.Clamp(
+                    chromosome.JointsCount + Mathf.RoundToInt(NormalDistribution(1, mutationStrength * 3)),
+                    0, 10);
+                break;
+            case 10: // Size Scale
+                chromosome.SizeScale = Mathf.Clamp(
+                    chromosome.SizeScale + (float)NormalDistribution(1, mutationStrength),
+                    0.25f, 2.0f);
+                break;
+            case 11: // Color Mutation
+                chromosome.Color.r = (byte)Mathf.Clamp(
+                    chromosome.Color.r + Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 255)),
+                    0, 255);
+                chromosome.Color.g = (byte)Mathf.Clamp(
+                    chromosome.Color.g + Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 255)),
+                    0, 255);
+                chromosome.Color.b = (byte)Mathf.Clamp(
+                    chromosome.Color.b + Mathf.RoundToInt(NormalDistribution(0, mutationStrength * 255)),
+                    0, 255);
+                break;
         }
+    }
+
+    return mutatedCreatures;
+}
+
 
         /* Similar to GaussianMutation but without the Gaussian. Instead, it defines a uniform incremental mutation. In this case, slightly based on the current values */
         private List<Creature> UniformMutation(List<Creature> crossedCreatures)

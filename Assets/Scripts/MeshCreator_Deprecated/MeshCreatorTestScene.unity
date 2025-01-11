@@ -1360,14 +1360,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: edb631df8ffb4ade9d682e2b817b89a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selectionType: 1
+  _selectionType: 0
   _crossoverType: 0
   _mutationType: 0
   _currentPopulation: {fileID: 0}
   populationPrefab: {fileID: 5293583728479625480, guid: a1e8da891bc579c4b803b859d5b603ae, type: 3}
   _populationSize: 20
   _elapsedTime: 0
-  _timeScale: 1
+  _timeScale: 10
   _maxTime: 120
   _algorithmCanvas: {fileID: 595744111}
 --- !u!4 &1009132610

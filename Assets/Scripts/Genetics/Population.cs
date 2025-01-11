@@ -20,7 +20,7 @@ namespace Genetics
         {
             this.id = id;
             _creatures = new List<CreatureContainer>();
-            for (var i = 0; i < size-1; i++)
+            for (var i = 0; i < size; i++)
             {
                 var xPos = Random.Range(-areaSize / 2f, areaSize / 2f);
                 var zPos = Random.Range(-areaSize / 2f, areaSize / 2f);
@@ -37,8 +37,9 @@ namespace Genetics
         {
             this.id = id;
             _creatures = new List<CreatureContainer>();
-            for (var i = 0; i < size-1; i++)
+            for (var i = 0; i < size; i++)
             {
+                
                 var xPos = Random.Range(-areaSize / 2f, areaSize / 2f);
                 var zPos = Random.Range(-areaSize / 2f, areaSize / 2f);
 

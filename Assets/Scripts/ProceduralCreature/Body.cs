@@ -11,7 +11,7 @@ namespace ProceduralCreature
     public class Body : MonoBehaviour
     {
         [SerializeField] private CreatureInfoDisplay _display;
-        
+
         public CreatureConfiguration configuration;
         // private SplineContainer _spline;
 
@@ -31,7 +31,9 @@ namespace ProceduralCreature
         private Color32 currentColor;
 
         private CreatureContainer _container;
-        public void ConfigureBody(CreatureContainer container, Color32 color, int bodyLength, int numLegsPoints, float sizeScale)
+
+        public void ConfigureBody(CreatureContainer container, Color32 color, int bodyLength, int numLegsPoints,
+            float sizeScale)
         {
             _container = container;
             if (generateMesh)
@@ -85,6 +87,9 @@ namespace ProceduralCreature
                 sizes = configuration.bodySizes;
             }
 
+            if (nOfPoints == 0)
+                nOfPoints = 1;
+
 
             for (int i = 0; i < nOfPoints; i++)
             {
@@ -111,9 +116,10 @@ namespace ProceduralCreature
             }
 
             points[0].gameObject.AddComponent<CreaturePlayerController>();
-            points[0].gameObject.AddComponent<BodyTriggerDetector>().Init(_container, _container.Creature.Chromosome.BasicStats.perception);
+            points[0].gameObject.AddComponent<BodyTriggerDetector>()
+                .Init(_container, _container.Creature.Chromosome.BasicStats.perception);
             _display.transform.SetParent(points[0].transform);
-            
+
             for (int i = 0; i < points.Count; i++)
             {
                 if (i > 0)
