@@ -10,6 +10,9 @@ TagManager:
   - Fruit
   - Crystal
   - Lumin
+  - Shore
+  - Cloud
+  - Terrain
   layers:
   - Default
   - TransparentFX
