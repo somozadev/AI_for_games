@@ -1367,7 +1367,7 @@ MonoBehaviour:
   populationPrefab: {fileID: 5293583728479625480, guid: a1e8da891bc579c4b803b859d5b603ae, type: 3}
   _populationSize: 20
   _elapsedTime: 0
-  _timeScale: 10
+  _timeScale: 1
   _maxTime: 120
   _algorithmCanvas: {fileID: 595744111}
 --- !u!4 &1009132610
