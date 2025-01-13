@@ -18,7 +18,7 @@ public class CreatureInfoDisplay : MonoBehaviour
     [SerializeField] private TMP_Text perception;
     [SerializeField] private TMP_Text joints;
 
-    public void UpdateDisplay(Creature creature, string state)
+    public void UpdateDisplay(Genetics.Creature creature, string state)
     {
         Chromosome chromosome = creature.Chromosome;
         fitness.text = creature.Fitness.ToString(CultureInfo.InvariantCulture);
