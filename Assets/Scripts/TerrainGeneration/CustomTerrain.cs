@@ -49,6 +49,588 @@ public class CustomTerrain : MonoBehaviour
         public bool remove = false;
     }
 
+    //Erosin #######
+    public enum ErosionType
+    {
+
+        Rain,
+        Thermal,
+        Tidal,
+        River,
+        Wind,
+        Canyon,
+        Beach
+    }
+    public ErosionType erosionType = ErosionType.Rain;
+    public float erosionStrength = 0.1f;
+    public float erosionAmount = 0.01f;
+    public float solubilty = 0.01f;
+    public int springsPerRiver = 5;
+    public int droplets = 12;
+    public int erosionSmoothAmount = 7;
+
+    public float waterHeight = 0.5f;
+    public GameObject waterGO;
+
+
+
+    public void Erode()
+    {
+
+        switch (erosionType)
+        {
+            case ErosionType.Rain:
+                Rain();
+                break;
+            case ErosionType.Thermal:
+                Thermal();
+                break;
+            case ErosionType.Tidal:
+                Tidal();
+                break;
+            case ErosionType.River:
+                River();
+                break;
+            case ErosionType.Wind:
+                Wind();
+                break;
+            case ErosionType.Canyon:
+                DigCanyon();
+                break;
+        }
+
+        smoothAmount = erosionSmoothAmount;
+        Smooth();
+    }
+
+    private void Rain()
+    {
+
+        float[,] heightMap = terrainData.GetHeights(0, 0, hmres, hmres);
+
+        for (int i = 0; i < droplets; ++i)
+        {
+
+            heightMap[UnityEngine.Random.Range(0, hmres), UnityEngine.Random.Range(0, hmres)] -= erosionStrength;
+        }
+        terrainData.SetHeights(0, 0, heightMap);
+    }
+
+    private void Thermal()
+    {
+
+        float[,] heightMap = terrainData.GetHeights(0, 0, hmres, hmres);
+
+        for (int y = 0; y < hmres; ++y)
+        {
+
+            for (int x = 0; x < hmres; ++x)
+            {
+
+                Vector2 thisLocation = new Vector2(x, y);
+                List<Vector2> neighbours = GenerateNeighbours(thisLocation, hmres, hmres);
+
+                foreach (Vector2 n in neighbours)
+                {
+
+                    if (heightMap[x, y] > heightMap[(int)n.x, (int)n.y] + erosionStrength)
+                    {
+
+                        float currentHeight = heightMap[x, y];
+                        heightMap[x, y] -= currentHeight * erosionAmount;
+                        heightMap[(int)n.x, (int)n.y] += currentHeight * erosionAmount;
+
+                    }
+                }
+            }
+        }
+        terrainData.SetHeights(0, 0, heightMap);
+    }
+
+    private void Tidal()
+    {
+
+        float[,] heightMap = terrainData.GetHeights(0, 0, hmres, hmres);
+
+        for (int y = 0; y < hmres; ++y)
+        {
+
+            for (int x = 0; x < hmres; ++x)
+            {
+
+                Vector2 thisLocation = new Vector2(x, y);
+                List<Vector2> neighbours = GenerateNeighbours(thisLocation, hmres, hmres);
+
+                foreach (Vector2 n in neighbours)
+                {
+
+                    if (heightMap[x, y] < waterHeight && heightMap[(int)n.x, (int)n.y] > waterHeight)
+                    {
+
+                        heightMap[x, y] = waterHeight;
+                        heightMap[(int)n.x, (int)n.y] = waterHeight;
+
+                    }
+                }
+            }
+        }
+        terrainData.SetHeights(0, 0, heightMap);
+    }
+
+    private void River()
+    {
+
+
+        float[,] heightMap = terrainData.GetHeights(0, 0, hmres, hmres);
+        float[,] erosionMap = new float[hmres, hmres];
+
+        for (int i = 0; i < droplets; ++i)
+        {
+
+            Vector2 dropletPosition = new Vector2(UnityEngine.Random.Range(0, hmres), UnityEngine.Random.Range(0, hmres));
+            erosionMap[(int)dropletPosition.x, (int)dropletPosition.y] = erosionStrength;
+
+            for (int j = 0; j < springsPerRiver; ++j)
+            {
+
+                erosionMap = RunRiver(dropletPosition, heightMap, erosionMap, hmres);
+            }
+        }
+        for (int y = 0; y < hmres; ++y)
+        {
+
+            for (int x = 0; x < hmres; ++x)
+            {
+
+                if (erosionMap[x, y] > 0.0f)
+                {
+
+                    heightMap[x, y] -= erosionMap[x, y];
+                }
+            }
+        }
+
+        terrainData.SetHeights(0, 0, heightMap);
+    }
+
+    private static System.Random rng = new System.Random();
+    private float[,] RunRiver(Vector2 dropletPosition, float[,] heightMap, float[,] erosionMap, int hmres)
+    {
+
+        while (erosionMap[(int)dropletPosition.x, (int)dropletPosition.y] > 0)
+        {
+
+            List<Vector2> origNeighbours = GenerateNeighbours(dropletPosition, hmres, hmres);
+            var neighbours = origNeighbours.OrderBy(a => rng.Next()).ToList();
+        
+            bool foundLower = false;
+
+            foreach (Vector2 n in neighbours)
+            {
+
+                if (heightMap[(int)n.x, (int)n.y] < heightMap[(int)dropletPosition.x, (int)dropletPosition.y])
+                {
+
+                    erosionMap[(int)n.x, (int)n.y] = erosionMap[(int)dropletPosition.x, (int)dropletPosition.y] - solubilty;
+                    dropletPosition = n;
+                    foundLower = true;
+                    break;
+                }
+            }
+            if (!foundLower)
+            {
+
+                erosionMap[(int)dropletPosition.x, (int)dropletPosition.y] -= solubilty;
+            }
+        }
+        return erosionMap;
+    }
+
+    private void Wind()
+    {
+
+        float[,] heightMap = terrainData.GetHeights(0, 0, hmres, hmres);
+
+        float windDir = 50.0f;
+        float sinAngle = -Mathf.Sin(Mathf.Deg2Rad * windDir);
+        float cosAngle = Mathf.Cos(Mathf.Deg2Rad * windDir);
+
+        for (int y = -(hmres - 1) * 2; y < hmres * 2; y += 10)
+        {
+
+            for (int x = -(hmres - 1) * 2; x < hmres * 2; x += 1)
+            {
+
+                float thisNoise = (float)Mathf.PerlinNoise(x * 0.06f, y * 0.06f) * 20.0f * erosionStrength;
+                int nX = x;
+                int digY = y + (int)thisNoise;
+                int nY = y + 5 + (int)thisNoise;
+
+                Vector2 digCoords = new Vector2(x * cosAngle - digY * sinAngle, digY * cosAngle + x * sinAngle);
+                Vector2 pileCoords = new Vector2(nX * cosAngle - nY * sinAngle, nY * cosAngle + nX * sinAngle);
+
+                if (!(pileCoords.x < 0 || pileCoords.x > (hmres - 1) ||
+                    pileCoords.y < 0 || pileCoords.y > (hmres - 1) ||
+                    (int)digCoords.x < 0 || (int)digCoords.x > (hmres - 1) ||
+                    (int)digCoords.y < 0 || (int)digCoords.y > (hmres - 1)))
+                {
+                    //Debug.Log("X: " + x + " Y: " + y);
+                    heightMap[(int)digCoords.x, (int)digCoords.y] -= 0.001f;
+                    heightMap[(int)pileCoords.x, (int)pileCoords.y] += 0.001f;
+                }
+            }
+        }
+        terrainData.SetHeights(0, 0, heightMap);
+    }
+
+    float[,] tempHeightMap;
+    private void DigCanyon()
+    {
+
+        float digDepth = 0.05f;
+        float bankSlope = 0.001f;
+        float maxDepth = 0.0f;
+
+        tempHeightMap = terrainData.GetHeights(0, 0, hmres, hmres);
+
+        int cX = 1;
+        int cY = UnityEngine.Random.Range(10, hmres - 10);
+
+        while (cY >= 0 && cY < hmres && cX > 0 && cX < hmres)
+        {
+
+            CanyonCrawler(cX, cY, tempHeightMap[cX, cY] - digDepth, bankSlope, maxDepth);
+            cX += UnityEngine.Random.Range(1, 3);
+            cY += UnityEngine.Random.Range(-2, 3);
+        }
+        terrainData.SetHeights(0, 0, tempHeightMap);
+    }
+
+    void CanyonCrawler(int x, int y, float height, float slope, float maxDepth)
+    {
+
+        if (x < 0 || x >= hmres) return;              // Off x range of map
+        if (y < 0 || y >= hmres) return;              // Off y range of map
+        if (height <= maxDepth) return;             // Has hit lowest point
+        if (tempHeightMap[x, y] <= height) return;  // Has run into lower elevation
+
+        tempHeightMap[x, y] = height;
+
+        CanyonCrawler(x + 1, y, height + UnityEngine.Random.Range(slope, slope + 0.01f), slope, maxDepth);
+        CanyonCrawler(x - 1, y, height + UnityEngine.Random.Range(slope, slope + 0.01f), slope, maxDepth);
+        CanyonCrawler(x + 1, y + 1, height + UnityEngine.Random.Range(slope, slope + 0.01f), slope, maxDepth);
+        CanyonCrawler(x - 1, y + 1, height + UnityEngine.Random.Range(slope, slope + 0.01f), slope, maxDepth);
+        CanyonCrawler(x, y - 1, height + UnityEngine.Random.Range(slope, slope + 0.01f), slope, maxDepth);
+        CanyonCrawler(x, y + 1, height + UnityEngine.Random.Range(slope, slope + 0.01f), slope, maxDepth);
+    }
+
+    // Vegetation   #########
+    [System.Serializable]
+    public class Vegetation
+    {
+
+        public GameObject mesh;
+        public float minHeight = 0.1f;
+        public float maxHeight = 0.2f;
+        public float minSlope = 0.0f;
+        public float maxSlope = 90.0f;
+        public float minScale = 0.5f;
+        public float maxScale = 1.0f;
+        public Color colour1 = Color.white;
+        public Color colour2 = Color.white;
+        public Color lightColour = Color.white;
+        public float minRotation = 0.0f;
+        public float maxRotation = 360.0f;
+        public float density = 0.5f;
+        public bool remove = false;
+    }
+    public List<Vegetation> vegetation = new List<Vegetation>() {
+
+        new Vegetation()
+    };
+
+    public int maxTrees = 5000;
+    public int treeSpacing = 5;
+
+    // Details ###########
+    [System.Serializable]
+    public class Detail
+    {
+
+        public GameObject prototype = null;
+        public Texture2D prototypeTexture = null;
+        public float minHeight = 0.1f;
+        public float maxHeight = 0.2f;
+        public float minSlope = 0.0f;
+        public float maxSlope = 1.0f;
+        public Color dryColor = Color.white;
+        public Color healthyColor = Color.white;
+        public Vector2 heightRange = new Vector2(1.0f, 1.0f);
+        public Vector2 widthRange = new Vector2(1.0f, 1.0f);
+        public float noiseSpread = 0.5f;
+        public float overlap = 0.01f;
+        public float feather = 0.05f;
+        public float density = 0.5f;
+        public bool remove = false;
+    }
+
+    public List<Detail> details = new List<Detail>() {
+
+        new Detail()
+    };
+
+    public int maxDetails = 5000;
+    public int detailSpacing = 5;
+
+    public void AddDetails()
+    {
+
+        DetailPrototype[] newDetailPrototypes;
+        newDetailPrototypes = new DetailPrototype[details.Count];
+        int dIndex = 0;
+        float[,] heightMap = terrainData.GetHeights(0, 0, hmres, hmres);
+
+        foreach (Detail d in details)
+        {
+
+            newDetailPrototypes[dIndex] = new DetailPrototype
+            {
+
+                prototype = d.prototype,
+                prototypeTexture = d.prototypeTexture,
+                healthyColor = Color.white,
+                dryColor = d.dryColor,
+                minHeight = d.heightRange.x,
+                maxHeight = d.heightRange.y,
+                minWidth = d.widthRange.x,
+                maxWidth = d.widthRange.y,
+                noiseSpread = d.noiseSpread
+            };
+
+            if (newDetailPrototypes[dIndex].prototype)
+            {
+
+                newDetailPrototypes[dIndex].usePrototypeMesh = true;
+                newDetailPrototypes[dIndex].renderMode = DetailRenderMode.VertexLit;
+            }
+            else
+            {
+
+                newDetailPrototypes[dIndex].usePrototypeMesh = false;
+                newDetailPrototypes[dIndex].renderMode = DetailRenderMode.GrassBillboard;
+            }
+            dIndex++;
+        }
+        terrainData.detailPrototypes = newDetailPrototypes;
+
+        float minDetailMapValue = 0.0f;
+        float maxDetailMapValue = 16.0f;
+
+        if (terrainData.detailScatterMode == DetailScatterMode.CoverageMode) maxDetailMapValue = 255.0f;
+
+        for (int i = 0; i < terrainData.detailPrototypes.Length; ++i)
+        {
+
+            int[,] detailMap = new int[terrainData.detailWidth, terrainData.detailHeight];
+
+            for (int y = 0; y < terrainData.detailHeight; y += detailSpacing)
+            {
+
+                for (int x = 0; x < terrainData.detailWidth; x += detailSpacing)
+                {
+
+                    if (UnityEngine.Random.Range(0.0f, 1.0f) > details[i].density) continue;
+                    int xHM = (int)(x / (float)terrainData.detailWidth * hmres);
+                    int yHM = (int)(y / (float)terrainData.detailHeight * hmres);
+
+                    float thisNoise = Utils.Map(Mathf.PerlinNoise(x * details[i].feather,
+                                                y * details[i].feather), 0, 1, 0.5f, 1);
+                    float thisHeightStart = details[i].minHeight * thisNoise -
+                                            details[i].overlap * thisNoise;
+                    float nextHeightStart = details[i].maxHeight * thisNoise +
+                                            details[i].overlap * thisNoise;
+
+                    float thisHeight = heightMap[yHM, xHM];
+                    float steepness = terrainData.GetSteepness(xHM / (float)terrainData.size.x,
+                                                                yHM / (float)terrainData.size.z);
+                    if ((thisHeight >= thisHeightStart && thisHeight <= nextHeightStart) &&
+                        (steepness >= details[i].minSlope && steepness <= details[i].maxSlope))
+                    {
+                        detailMap[y, x] = (int)UnityEngine.Random.Range(minDetailMapValue, maxDetailMapValue);
+                    }
+                }
+            }
+            terrainData.SetDetailLayer(0, 0, i, detailMap);
+        }
+    }
+
+    public void AddNewDetails()
+    {
+
+        details.Add(new Detail());
+    }
+
+    public void RemoveDetails()
+    {
+
+        //for (int i = details.Count - 1; i >= 1; i--)
+        //    if (details[i].remove) details.RemoveAt(i);
+        List<Detail> keptDetail = new List<Detail>();
+        for (int i = 0; i < vegetation.Count; ++i)
+        {
+
+            if (!vegetation[i].remove)
+            {
+
+                keptDetail.Add(details[i]);
+            }
+        }
+        if (keptDetail.Count == 0) //don't want to keep any
+        {
+            keptDetail.Add(details[0]); //add at least 1
+        }
+        details = keptDetail;
+    }
+
+    public void AddWater()
+    {
+
+        GameObject water = GameObject.Find("water");
+        if (!water)
+        {
+
+            water = Instantiate(waterGO, this.transform.position, this.transform.rotation);
+            water.name = "water";
+        }
+        water.transform.position = this.transform.position +
+            new Vector3(terrainData.size.x / 2.0f,
+            waterHeight * terrainData.size.y,
+            terrainData.size.z / 2.0f);
+
+        water.transform.localScale = new Vector3(terrainData.size.x, 1.0f, terrainData.size.z);
+    }
+
+    public void PlantVegetation()
+    {
+
+        TreePrototype[] newTreePrototypes;
+        newTreePrototypes = new TreePrototype[vegetation.Count];
+        int tIndex = 0;
+        foreach (Vegetation t in vegetation)
+        {
+
+            newTreePrototypes[tIndex] = new TreePrototype
+            {
+                prefab = t.mesh
+            };
+            tIndex++;
+        }
+        terrainData.treePrototypes = newTreePrototypes;
+
+        List<TreeInstance> allVegetation = new List<TreeInstance>();
+        int tah = terrainData.alphamapHeight;
+        int taw = terrainData.alphamapWidth;
+
+        for (int z = 0; z < tah; z += treeSpacing)
+        {
+
+            for (int x = 0; x < taw; x += treeSpacing)
+            {
+
+                for (int tp = 0; tp < terrainData.treePrototypes.Length; ++tp)
+                {
+
+                    if (UnityEngine.Random.Range(0.0f, 1.0f) > vegetation[tp].density) break;
+
+                    float thisHeight = terrainData.GetHeight(x, z) / terrainData.size.y;
+                    float thisHeightStart = vegetation[tp].minHeight;
+                    float thisHeightEnd = vegetation[tp].maxHeight;
+
+                    float normX = x * 1.0f / (taw - 1.0f);
+                    float normY = z * 1.0f / (tah - 1.0f);
+                    float steepness = terrainData.GetSteepness(x, z);
+
+                    if ((thisHeight >= thisHeightStart && thisHeight <= thisHeightEnd) &&
+                        (steepness >= vegetation[tp].minSlope && steepness <= vegetation[tp].maxSlope))
+                    {
+
+                        TreeInstance instance = new TreeInstance();
+                        instance.position = new Vector3((x + UnityEngine.Random.Range(-5.0f, 5.0f)) / taw,
+                                                            thisHeight,
+                                                            (z + UnityEngine.Random.Range(-5.0f, 5.0f)) / tah);
+
+                        Vector3 treeWorldPos = new Vector3(instance.position.x * terrainData.size.x,
+                                                                instance.position.y * terrainData.size.y,
+                                                                instance.position.z * terrainData.size.z) + this.transform.position;
+
+                        RaycastHit hit;
+                        int layerMask = 1 << terrainLayer;
+                        if (Physics.Raycast(treeWorldPos + new Vector3(0.0f, 10.0f, 0.0f), -Vector3.up, out hit, 100, layerMask) ||
+                            Physics.Raycast(treeWorldPos - new Vector3(0.0f, 10.0f, 0.0f), Vector3.up, out hit, 100, layerMask))
+                        {
+
+                            float treeHeight = (hit.point.y - this.transform.position.y) / terrainData.size.y;
+                            instance.position = new Vector3(instance.position.x,
+                                                            treeHeight,
+                                                            instance.position.z);
+                        }
+
+                        instance.rotation = UnityEngine.Random.Range(vegetation[tp].minRotation,
+                                                                 vegetation[tp].maxRotation);
+                        instance.prototypeIndex = tp;
+                        instance.color = Color.Lerp(vegetation[tp].colour1,
+                                                    vegetation[tp].colour2,
+                                                    UnityEngine.Random.Range(0.0f, 1.0f));
+                        instance.lightmapColor = vegetation[tp].lightColour;
+                        float s = UnityEngine.Random.Range(vegetation[tp].minScale, vegetation[tp].maxScale);
+                        instance.heightScale = s;
+                        instance.widthScale = s;
+
+
+                        allVegetation.Add(instance);
+                        if (allVegetation.Count >= maxTrees) goto TREESDONE;
+                    }
+                }
+            }
+        }
+    TREESDONE:
+        terrainData.treeInstances = allVegetation.ToArray();
+    }
+
+    public void AddNewVegetation()
+    {
+
+        vegetation.Add(new Vegetation());
+    }
+
+    public void RemoveVegetation()
+    {
+
+        //for (int i = vegetation.Count - 1; i >= 1; i--)
+        //    if (vegetation[i].remove) vegetation.RemoveAt(i);
+
+
+        List<Vegetation> keptvegetation = new List<Vegetation>();
+        for (int i = 0; i < vegetation.Count; ++i)
+        {
+
+            if (!vegetation[i].remove)
+            {
+
+                keptvegetation.Add(vegetation[i]);
+            }
+        }
+        if (keptvegetation.Count == 0) //don't want to keep any
+        {
+            keptvegetation.Add(vegetation[0]); //add at least 1
+        }
+        vegetation = keptvegetation;
+    }
+
+
+
+
+    // Splatmaps ########
     public List<SplatHeights> splatHeights = new List<SplatHeights>()
     {
         new SplatHeights()
@@ -676,6 +1258,10 @@ public class CustomTerrain : MonoBehaviour
         terrainData = Terrain.activeTerrain.terrainData;
     }
 
+    public enum TagType { Tag, Layer };
+    [SerializeField]
+    int terrainLayer = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -683,15 +1269,20 @@ public class CustomTerrain : MonoBehaviour
 
         SerializedProperty tagsProp = tagManager.FindProperty("tags");
 
-        AddTag(tagsProp, "Terrain");
-        AddTag(tagsProp, "Cloud");
-        AddTag(tagsProp, "Shore");
+        AddTag(tagsProp, "Terrain", TagType.Tag);
+        AddTag(tagsProp, "Cloud", TagType.Tag);
+        AddTag(tagsProp, "Shore", TagType.Tag);
+
+        SerializedProperty layerProp = tagManager.FindProperty("layers");
+        terrainLayer = AddTag(layerProp, "Terrain", TagType.Layer);
+
 
         tagManager.ApplyModifiedProperties();
         this.gameObject.tag = "Terrain";
+        this.gameObject.layer = terrainLayer;
     }
 
-    void AddTag(SerializedProperty tagsProp, string newTag)
+    int AddTag(SerializedProperty tagsProp, string newTag, TagType tType)
     {
         bool found = false;
         for (int i = 0; i < tagsProp.arraySize; i++)
@@ -703,13 +1294,29 @@ public class CustomTerrain : MonoBehaviour
             }
         }
 
-        if (!found)
+        if (!found && tType == TagType.Tag)
         {
             tagsProp.InsertArrayElementAtIndex(0);
             SerializedProperty newTagProp = tagsProp.GetArrayElementAtIndex(0);
             newTagProp.stringValue = newTag;
         }
+        else if (!found && tType == TagType.Layer)
+        {
 
+            for (int j = 8; j < tagsProp.arraySize; ++j)
+            {
+
+                SerializedProperty newLayer = tagsProp.GetArrayElementAtIndex(j);
+                if (newLayer.stringValue == "")
+                {
+
+                     Debug.Log("Adding New Layer: " + newTag);
+                    newLayer.stringValue = newTag;
+                    return j;
+                }
+            }
+        }
+        return -1;
     }
     // Update is called once per frame
     void Update()
