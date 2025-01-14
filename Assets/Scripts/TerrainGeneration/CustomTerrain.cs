@@ -1260,7 +1260,7 @@ public class CustomTerrain : MonoBehaviour
 
     public enum TagType { Tag, Layer };
     [SerializeField]
-    int terrainLayer = 0;
+    int terrainLayer = 1;
 
     // Start is called before the first frame update
     void Start()
